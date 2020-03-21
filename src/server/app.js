@@ -1,13 +1,15 @@
 const express = require('express')
 const path = require('path')
 const useragent = require('express-useragent');
+const bodyParser = require('body-parser');
 
 const app = express()
 app.use('/client', express.static(__dirname + '/../client'))
+app.use(bodyParser.urlencoded({ extended: true }));
+
 
 app.get('/', async (req, res) => {
     console.log(req.connection.remoteAddress)
-
     const source = req.headers['user-agent'],
     ua = useragent.parse(source);
     if (!ua.isChrome) {
@@ -26,7 +28,27 @@ app.get('/browser', async (req, res) => {
     res.end(ua.isChrome ? "browser is supported!" : JSON.stringify(ua));
 })
 
+const users = []
+let cardCzar = 0
 app.post('/login', async (req, res) => {
+    users.append(req.body.nickname)
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end("ok");
+})
+
+app.get('/getCard', async (req, res) => {
+    
+})
+
+app.post('/chooseCard', async (req, res) => {
+    
+})
+
+app.post('/chooseWinner', async (req, res) => {
+    
+})
+
+app.get('/getUsers', async (req, res) => {
     
 })
 

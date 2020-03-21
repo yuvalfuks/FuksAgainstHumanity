@@ -16,7 +16,7 @@
 	
 </head>
 <body class="pushable">
-	<div class="dark pusher">
+	<div class="dark pusher" id="app">
 	  	<div class="ui inverted vertical masthead center aligned segment">
 			<div class="ui text container">
 				<h1 class="ui inverted header">Fuks Against Humanity</h1>
@@ -25,7 +25,7 @@
 					<div id="nickname" class="ui inverted input focus">
 						<input type="text" placeholder="nickname">
 					</div>
-					<div id="nickname" class="ui large primary button" data-inverted="" data-tooltip="Under construction!" data-position="bottom center">
+					<div v-on:click="submit()" id="nickname" class="ui large primary button" data-inverted="" data-tooltip="Under construction!" data-position="bottom center">
 						Get Started <i class="right arrow icon"></i>
 					</div>
 				</form>
