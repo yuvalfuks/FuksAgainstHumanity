@@ -3,8 +3,11 @@ const path = require('path')
 const useragent = require('express-useragent');
 
 const app = express()
+app.use('/client', express.static(__dirname + '/../client'))
 
 app.get('/', async (req, res) => {
+    console.log(req.connection.remoteAddress)
+
     const source = req.headers['user-agent'],
     ua = useragent.parse(source);
     if (!ua.isChrome) {
@@ -12,7 +15,7 @@ app.get('/', async (req, res) => {
         res.end("i only support chrome :)");
         return
     }
-    res.sendFile(path.join(__dirname + '/../client/htmls/index.html'))
+    res.sendFile(path.join(__dirname + '/../client/htmls/home.html'))
 })
 
 app.get('/browser', async (req, res) => {
@@ -29,7 +32,7 @@ app.get('/browser', async (req, res) => {
 })
 
 app.post('/login', async (req, res) => {
-
+    
 })
 
 app.listen(80, () => console.log(`listening on port 80!`))
