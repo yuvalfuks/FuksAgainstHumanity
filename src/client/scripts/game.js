@@ -1,21 +1,13 @@
 $().ready(() => {
+    
     var app = new Vue({
         el: '#app',
         data: {
-            Game : {}
+            Game : {},
+            myNickname : window.localStorage.getItem('nickname')
         },
         methods: {
-            submit : async () => {
-                const name = $('input').val();
-                let response = await $.post('/login', {
-                    nickname : name
-                })
-                console.log(response)
-                document.cookie = {}
-                document.cookie.nickname = name
-                window.location.href += 'game'
-                // tell the user if the nickname is taken
-            },
+            
         }
     })
 })

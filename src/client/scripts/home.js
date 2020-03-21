@@ -10,9 +10,8 @@ $().ready(() => {
                 let response = await $.post('/login', {
                     nickname : name
                 })
-                console.log(response)
-                document.cookie = {}
-                document.cookie.nickname = name
+                window.localStorage.setItem('nickname', name)
+                console.log(window.localStorage.getItem('nickname'))
                 window.location.href += 'game'
                 // tell the user if the nickname is taken
             },
