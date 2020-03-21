@@ -18,17 +18,12 @@ app.get('/', async (req, res) => {
     res.sendFile(path.join(__dirname + '/../client/htmls/home.html'))
 })
 
+// testing
 app.get('/browser', async (req, res) => {
     const source = req.headers['user-agent'],
     ua = useragent.parse(source);
-    if (ua.isChrome) {
-        res.writeHead(200, {'Content-Type': 'text/plain'});
-        res.end("browser is supported!");
-    }
-    else {
-        res.writeHead(200, {'Content-Type': 'text/plain'});
-        res.end(JSON.stringify(ua));
-    }
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end(ua.isChrome ? "browser is supported!" : JSON.stringify(ua));
 })
 
 app.post('/login', async (req, res) => {
