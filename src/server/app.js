@@ -2,6 +2,7 @@ const express = require('express')
 const path = require('path')
 const useragent = require('express-useragent');
 const bodyParser = require('body-parser');
+const https = require('https');
 
 const app = express()
 app.use('/client', express.static(__dirname + '/../client'))
@@ -50,6 +51,33 @@ app.post('/chooseWinner', async (req, res) => {
 
 app.get('/getUsers', async (req, res) => {
     
+})
+
+app.get('/pack/:id', async (req, res) => {
+    https.request({
+        hostname: 'api.cardcastgame.com',
+        port: 443,
+        path: `/v1/decks/${req.params.id}/calls`,
+        method: 'GET'
+    }, resTemp => {
+        resTemp.on('data', d => {
+            console.log(d.toString('utf8'))
+        })
+    }).end()
+
+    https.request({
+        hostname: 'api.cardcastgame.com',
+        port: 443,
+        path: `/v1/decks/${req.params.id}/responses`,
+        method: 'GET'
+    }, resTemp => {
+        resTemp.on('data', d => {
+            console.log(d.toString('utf8'))
+        })
+    }).end()
+
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end("ok");
 })
 
 app.listen(80, () => console.log(`listening on port 80!`))
