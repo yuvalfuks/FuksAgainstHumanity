@@ -2,7 +2,7 @@ const express = require('express')
 const path = require('path')
 const useragent = require('express-useragent');
 const bodyParser = require('body-parser');
-const https = require('https');
+const fetch = require('node-fetch')
 
 const app = express()
 app.use('/client', express.static(__dirname + '/../client'))
@@ -12,7 +12,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get('/', async (req, res) => {
     const source = req.headers['user-agent'],
     ua = useragent.parse(source);
-    if (!ua.isChrome) {
+    if (!ua.isChrome) { 
         res.writeHead(200, {'Content-Type': 'text/plain'});
         res.end("i only support chrome :)");
         return
@@ -39,23 +39,18 @@ app.get('/browser', async (req, res) => {
     res.end(ua.isChrome ? "browser is supported!" : JSON.stringify(ua));
 })
 
-function getBlackCard() {
-    
-}
-
 const Game = {
     users : [],
     cardCzar : 0,
     numReady : 0,
     playedCards : [],
-    currentCard : getBlackCard(),
+    currentCard : undefined,
     inProgress : false,
-    calls = [],
-    responses = []
+    calls : [],
+    responses : []
 }
 
 app.post('/login', async (req, res) => {
-    // todo: check for duplicate nicknames
     if (Game.inProgress) {
         res.writeHead(200, {'Content-Type': 'text/plain'});
         res.end("bad");
@@ -71,7 +66,9 @@ app.post('/login', async (req, res) => {
 })
 
 app.get('/card', async (req, res) => {
-    
+    const rnd = Math.floor(Math.random() * Game.responses.length)
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end(Game.responses[rnd].text[0]);
 })
 
 app.post('/card', async (req, res) => {
@@ -93,7 +90,7 @@ app.post('/winner', async (req, res) => {
         user.choseCard = false
     }
     Game.playedCards = []
-    Game.currentCard = getBlackCard()
+    Game.currentCard = Game.calls[Math.floor(Math.random() * Game.calls.length)].text[0]
     res.writeHead(200, {'Content-Type': 'text/plain'});
     res.end("ok");
 })
@@ -103,6 +100,7 @@ app.post('/ready', async (req, res) => {
     user.ready = true
     Game.numReady += 1
     if (Game.numReady > 1 && Game.numReady == Game.users.length) {
+        Game.currentCard = Game.calls[Math.floor(Math.random() * Game.calls.length)].text[0]
         Game.inProgress = true
     }
     res.writeHead(200, {'Content-Type': 'text/plain'});
@@ -115,28 +113,18 @@ app.get('/users', async (req, res) => {
 })
 
 app.post('/pack/:id', async (req, res) => {
-    https.request({
-        hostname: 'api.cardcastgame.com',
-        port: 443,
-        path: `/v1/decks/${req.params.id}/calls`,
-        method: 'GET'
-    }, resTemp => {
-        resTemp.on('data', d => {
-            Game.calls = Game.calls.concat(JSON.parse(d.toString('utf8')))
-        })
-    }).end()
-
-    https.request({
-        hostname: 'api.cardcastgame.com',
-        port: 443,
-        path: `/v1/decks/${req.params.id}/responses`,
-        method: 'GET'
-    }, resTemp => {
-        resTemp.on('data', d => {
-            Game.responses = Game.responses.concat(JSON.parse(d.toString('utf8')))
-        })
-    }).end()
-
+    try {
+        let newCalls = await fetch(`https://api.cardcastgame.com/v1/decks/${req.params.id}/calls`)
+        let newResponses = await fetch(`https://api.cardcastgame.com/v1/decks/${req.params.id}/responses`)
+        Game.calls = Game.calls.concat(await newCalls.json())
+        Game.responses = Game.responses.concat(await newResponses.json())
+    }
+    catch(error) {
+        console.log(error)
+        res.writeHead(500, {'Content-Type': 'text/plain'});
+        res.end("error");
+    }
+    
     res.writeHead(200, {'Content-Type': 'text/plain'});
     res.end("ok");
 })
