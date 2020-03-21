@@ -30,7 +30,10 @@ app.get('/browser', async (req, res) => {
 })
 
 const users = []
+let calls = []
+let responses = []
 let cardCzar = 0
+
 app.post('/login', async (req, res) => {
     users.append(req.body.nickname)
     res.writeHead(200, {'Content-Type': 'text/plain'});
@@ -61,7 +64,7 @@ app.get('/pack/:id', async (req, res) => {
         method: 'GET'
     }, resTemp => {
         resTemp.on('data', d => {
-            console.log(d.toString('utf8'))
+            calls = calls.concat(JSON.parse(d.toString('utf8')))
         })
     }).end()
 
@@ -72,7 +75,7 @@ app.get('/pack/:id', async (req, res) => {
         method: 'GET'
     }, resTemp => {
         resTemp.on('data', d => {
-            console.log(d.toString('utf8'))
+            responses = responses.concat(JSON.parse(d.toString('utf8')))
         })
     }).end()
 
