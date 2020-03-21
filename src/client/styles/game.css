@@ -1,7 +1,6 @@
 
 .ui.card.segment {
-    min-height: 200px;
-    max-height: 300px;
+    min-height: 150px;
 }
 
 div.ui.column.grid {
