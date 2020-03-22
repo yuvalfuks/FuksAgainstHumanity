@@ -23,39 +23,46 @@
         <div class="ui inverted vertical masthead center aligned segment">
             <div class="ui large secondary inverted pointing menu">
                 <div class="item" v-for="user in Game.users" style="display: block;">
-                    <div :class="user.ready ? '' : 'notReady'">
-                        <i class="crown icon scoreboard" v-if="Game.users[Game.cardCzar].nickname === user.nickname"></i>
+                    <div :class="decideUserAppearance(user)">
+                        <i class="crown icon scoreboard" v-if="Game.inProgress && isCardCzar(user.nickname)"></i>
                         <div class="scoreboard">{{user.nickname}}</div>
                         <div class="scoreboard">{{user.score}}</div>
                     </div>
                 </div>
                 <div class="right item">
-                    <a class="ui button"> {{ myNickname }}</a>
+                    <a class="ui button" v-on:click="refresh()"> {{ myNickname }}</a>
                     <a class="ui button" v-on:click="ready()"> {{ myUser.ready ? 'you are ready' : 'ready' }} </a>
                 </div>
             </div>
-            <div class="ui nine column grid">
-                <div class="column">
-                    <div id="call" class="ui card segment">
-                        <div class="innerCard" v-if="Game.currentCard">
-                            {{Game.currentCard.text.join("________")}}
+            <div v-if="Game.inProgress">
+                <div class="ui nine column grid">
+                    <div class="column">
+                        <div id="call" class="ui card segment">
+                            <div class="innerCard" v-if="Game.currentCard">
+                                {{Game.currentCard.text.join("________")}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column" v-for="play in Game.playedCards">
+                        <div id="response" v-if="isCardCzar(myNickname)" class="ui call card segment button" v-on:click="chooseWinner(play)">
+                            <div class="innerCard" v-if="Game.playedCards.length === Game.users.length - 1">
+                                {{play.card.text[0]}}
+                            </div>
+                        </div>
+                        <div id="response" v-else class="ui call card segment">
+                            <div class="innerCard" v-if="Game.playedCards.length === Game.users.length - 1">
+                                {{play.card.text[0]}}
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="column" v-for="card in Game.playedCards">
-                    <div id="response" class="ui card segment">
-                        <div class="innerCard" v-if="Game.playedCards.length === Game.users.length - 1">
-                            asdasdasd
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="ui inverted divider"></div>
-            <div class="ui nine column grid">
-                <div v-for="card in myUser.cards" class="column">
-                    <div id="response" v-bind:class="decideCardAppearance(card)" v-on:click="chooseCard(card)">
-                        <div class="innerCard">
-                            {{card.text[0]}}
+                <div class="ui inverted divider"></div>
+                <div class="ui nine column grid">
+                    <div v-for="card in myUser.cards" class="column">
+                        <div id="response" v-bind:class="decideCardAppearance(card)" v-on:click="chooseCard(card)">
+                            <div class="innerCard">
+                                {{card.text[0]}}
+                            </div>
                         </div>
                     </div>
                 </div>

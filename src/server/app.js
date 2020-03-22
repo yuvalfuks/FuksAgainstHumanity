@@ -8,6 +8,14 @@ const app = express()
 app.use('/client', express.static(__dirname + '/../client'))
 app.use(bodyParser.urlencoded({ extended: true }));
 
+/*
+TODO list:
+- add packs
+- calls with 2 responses
+- give people time to see who won (a nice animation maybe?)
+
+- GUI design and colors
+*/
 
 app.get('/', async(req, res) => {
     const source = req.headers['user-agent']
@@ -61,12 +69,13 @@ const Game = {
     inProgress: false,
 }
 
-app.post('/login', async(req, res) => {
+app.post('/api/login', async(req, res) => {
     const user = Game.users.find(user => user.nickname === req.body.nickname)
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
     if (!user) {
         if (Game.inProgress) {
-            res.writeHead(200, { 'Content-Type': 'text/plain' });
             res.end("bad");
+            return
         }
         const newUser = {
             nickname: req.body.nickname,
@@ -80,11 +89,10 @@ app.post('/login', async(req, res) => {
         }
         Game.users.push(newUser)
     }
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end("ok");
 })
 
-app.post('/card', async(req, res) => {
+app.post('/api/card', async(req, res) => {
     const user = Game.users.find(user => user.nickname === req.body.nickname)
     const card = user.cards.find(card => card.id === req.body.id)
     Game.playedCards.push({
@@ -96,15 +104,16 @@ app.post('/card', async(req, res) => {
     res.end("ok");
 })
 
-app.post('/winner', async(req, res) => {
-    const winner = Game.playedCards.find(play => play.card.id === req.body.id)
-    const user = Game.users.find(user => user.nickname === winner.user)
+app.post('/api/winner', async(req, res) => {
+    const user = Game.users.find(user => user.nickname === req.body.nickname)
     user.score += 1
     Game.cardCzar = (Game.cardCzar + 1) % Game.users.length
     for (const user of Game.users) {
-        user.cards = user.cards.filter(card => card.id != user.choseCard.id)
-        user.choseCard = undefined
-        user.cards.push(getResponse())
+        if (user.chosenCard) {
+            user.cards = user.cards.filter(card => card.id != user.chosenCard.id)
+            user.chosenCard = undefined
+            user.cards.push(getResponse())
+        }
     }
     Game.playedCards = []
     Game.currentCard = getCall()
@@ -112,11 +121,11 @@ app.post('/winner', async(req, res) => {
     res.end("ok");
 })
 
-app.post('/ready', async(req, res) => {
+app.post('/api/ready', async(req, res) => {
     const user = Game.users.find(user => user.nickname === req.body.nickname)
     user.ready = true
     Game.numReady += 1
-    if (Game.numReady > 1 && Game.numReady === Game.users.length) {
+    if (Game.numReady > 2 && Game.numReady === Game.users.length) {
         Game.currentCard = getCall()
         Game.inProgress = true
     }
@@ -124,12 +133,12 @@ app.post('/ready', async(req, res) => {
     res.end("ok");
 })
 
-app.get('/users', async(req, res) => {
+app.get('/api/game', async(req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(Game));
 })
 
-app.post('/pack/:id', async(req, res) => {
+app.post('/api/pack/:id', async(req, res) => {
     try {
         let newCalls = await fetch(`https://api.cardcastgame.com/v1/decks/${req.params.id}/calls`)
         newCalls = await newCalls.json()
@@ -139,6 +148,7 @@ app.post('/pack/:id', async(req, res) => {
         const newResponses = await fetch(`https://api.cardcastgame.com/v1/decks/${req.params.id}/responses`)
         Cards.responses = Cards.responses.concat(await newResponses.json())
     } catch (error) {
+        // this might happen!!!!!!
         console.log(error)
         res.writeHead(500, { 'Content-Type': 'text/plain' });
         res.end("error");
@@ -149,25 +159,8 @@ app.post('/pack/:id', async(req, res) => {
     res.end("ok");
 })
 
-// for memes
-app.get('/admin/meme/:id', async(req, res) => {
-
-    // this can be bypassed of course but if someone wants this so hard then im ok with it.
-    if (req.connection.remoteAddress.toString() == "::1") {
-        const user = Game.users.find(user => user.nickname === req.params.id)
-        if (user) {
-            user.score -= 1
-        }
-    }
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end("ok");
-})
-
 app.get('/admin/remove/:id', async(req, res) => {
-    // this can be bypassed of course but if someone wants this so hard then im ok with it.
-    if (req.connection.remoteAddress.toString() == "::1") {
-        Game.users = Game.users.filter(user => user.nickname !== req.params.id)
-    }
+    Game.users = Game.users.filter(user => user.nickname !== req.params.id)
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end("ok");
 })
@@ -181,9 +174,6 @@ app.listen(80, async() => {
 
     const newResponses = await fetch(`https://api.cardcastgame.com/v1/decks/6QP6Y/responses`)
     Cards.responses = Cards.responses.concat(await newResponses.json())
-
-    // only when ready!!!!!
-    Game.currentCard = getCall()
 
     console.log(Cards)
     console.log(`listening on port 80!`)

@@ -7,9 +7,16 @@ $().ready(() => {
             myUser: {},
             myNickname: window.localStorage.getItem('nickname')
         },
+        mounted: function() {
+            setInterval(this.refresh, 200);
+        },
         methods: {
+            isCardCzar(nickname) {
+                return this.Game.users[this.Game.cardCzar].nickname == nickname
+            },
             async refresh() {
-                this.Game = await $.getJSON('/users')
+                console.log('refreshing...')
+                this.Game = await $.getJSON('/api/game')
                 this.myUser = this.Game.users.find(user => {
                     return user.nickname == this.myNickname
                 })
@@ -18,12 +25,12 @@ $().ready(() => {
                 if (this.myUser.ready) {
                     return;
                 }
+                this.myUser.ready = true // prevent races
 
-                let response = await $.post('/ready', {
+                let response = await $.post('/api/ready', {
                     nickname: this.myNickname
                 })
                 this.refresh()
-                console.log(response)
             },
             decideCardAppearance(card) {
                 let base = 'ui button call card segment'
@@ -33,15 +40,30 @@ $().ready(() => {
                         base += ' primary';
                     }
                 }
-                if (this.Game.users[this.Game.cardCzar].nickname == this.myNickname) {
+                if (this.isCardCzar(this.myNickname)) {
                     base += ' disabled';
                 }
                 return base
             },
+            decideUserAppearance(user) {
+                if (this.Game.inProgress) {
+                    Ready = this.isCardCzar(user.nickname) || user.chosenCard
+                } else {
+                    Ready = user.ready
+                }
+                return Ready ? '' : 'notReady'
+
+            },
             async chooseCard(card) {
-                res = await $.post('/card', {
+                res = await $.post('/api/card', {
                     id: card.id,
                     nickname: this.myNickname
+                });
+                this.refresh()
+            },
+            async chooseWinner(play) {
+                res = await $.post('/api/winner', {
+                    nickname: play.nickname,
                 });
                 this.refresh()
             }

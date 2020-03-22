@@ -7,13 +7,12 @@ $().ready(() => {
         methods: {
             async submit() {
                 const name = $('input').val();
-                let response = await $.post('/login', {
-                    nickname : name
+                let response = await $.post('/api/login', {
+                    nickname: name
                 })
                 if (response == 'bad') {
                     $('.ui.basic.modal').modal('show')
-                } 
-                else {
+                } else {
                     window.localStorage.setItem('nickname', name)
                     console.log(window.localStorage.getItem('nickname'))
                     window.location.href += 'game'
