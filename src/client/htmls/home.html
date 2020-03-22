@@ -1,78 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-	<meta charset="UTF-8">
-	<title>Fuks Against Humanity</title>
-	<link rel="icon" href="https://3d5.buchta.dev/themes/sigsegv2/static/img/favicon.ico?d=e31f8b6d">
+    <meta charset="UTF-8">
+    <title>Fuks Against Humanity</title>
+    <link rel="icon" href="https://3d5.buchta.dev/themes/sigsegv2/static/img/favicon.ico?d=e31f8b6d">
 
-	<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.4/dist/semantic.min.css">
-	<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.4/dist/semantic.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.4/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.4/dist/semantic.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
 
-	<link rel="stylesheet" href="client/styles/layout.css">
-	<link rel="stylesheet" href="client/styles/home.css">
-	<script src="client/scripts/home.js"></script>
-	
+    <link rel="stylesheet" href="client/styles/layout.css">
+    <link rel="stylesheet" href="client/styles/home.css">
+    <script src="client/scripts/home.js"></script>
+
 </head>
+
 <body class="pushable">
-	<div class="dark pusher" id="app">
-	  	<div class="ui inverted vertical masthead center aligned segment">
-			<div class="ui text container">
-				<h1 class="ui inverted header">Fuks Against Humanity</h1>
-				<h2>What 'Pretend You're Xyzzy' should have been</h2>
-				<div>
-					<div v-on:keyup.enter="submit()" id="nickname" class="ui inverted input focus">
-						<input type="text" placeholder="nickname">
-					</div>
-					<div v-on:click="submit()" id="nickname" class="ui large primary button" data-inverted="" data-tooltip="Under construction!" data-position="bottom center">
-						Get Started <i class="right arrow icon"></i>
-					</div>
-				</div>
-				
-			</div>
-	  	</div>
-	
-		<div class="ui vertical stripe quote segment" style="background-color: #ffffff;">
-			<div class="ui stackable internally celled grid">
-				<div class="center aligned row">
-					<div class="six wide column">
-						<h3>"What a great website"</h3>
-						<p>'Haaretz' newspaper</p>
-					</div>
-					<div class="ten wide column">
-						<h3>"It was the first hit on google! I thought it would be great!"</h3>
-						<p>
-							A victim of 'Pretend You're Xyzzy'
-						</p>
-					</div>
-				</div>
-			</div>
-		</div>
-	
-	
-		<div class="ui inverted vertical footer segment">
-			<div class="ui container">
-				<div class="ui stackable inverted divided equal height stackable grid">
-					<div class="five wide column">
-						<h4 class="ui inverted header">About</h4>
-						<p>
-							this site was created because 'Pretend You're Xyzzy' is pure dogshit!
-						</p>
-					</div>
-					<div class="seven wide column">
-						<h4 class="ui inverted header">Services</h4>
-						<p>
-							We strive to be less dogshit than 'Pretend You're Xyzzy' (ez lol), and bring you the best experience. for free!
-						</p>
-					</div>
-					<div class="four wide column">
-						<h4 class="ui inverted header">Who am i?</h4>
-						<p>The master memer, Fuks!</p>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>	
+    <div id="app">
+        <div class="dark pusher" id="app">
+            <div class="ui inverted vertical masthead center aligned segment">
+                <div class="ui text container">
+                    <h1 class="ui inverted header">Fuks Against Humanity</h1>
+                    <h2>What 'Pretend You're Xyzzy' should have been</h2>
+                    <div>
+                        <div v-on:keyup.enter="submit()" id="nickname" class="ui inverted input focus">
+                            <input type="text" placeholder="nickname">
+                        </div>
+                        <div v-on:click="submit()" id="nickname" class="ui large primary button" data-inverted="" data-tooltip="Under construction!" data-position="bottom center">
+                            Get Started <i class="right arrow icon"></i>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="ui vertical stripe quote segment" style="background-color: #ffffff;">
+                <div class="ui stackable internally celled grid">
+                    <div class="center aligned row">
+                        <div class="six wide column">
+                            <h3>"What a great website"</h3>
+                            <p>'Haaretz' newspaper</p>
+                        </div>
+                        <div class="ten wide column">
+                            <h3>"It was the first hit on google! I thought it would be great!"</h3>
+                            <p>
+                                A victim of 'Pretend You're Xyzzy'
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="ui inverted vertical footer segment">
+                <div class="ui container">
+                    <div class="ui stackable inverted divided equal height stackable grid">
+                        <div class="five wide column">
+                            <h4 class="ui inverted header">About</h4>
+                            <p>
+                                this site was created because 'Pretend You're Xyzzy' is pure dogshit!
+                            </p>
+                        </div>
+                        <div class="seven wide column">
+                            <h4 class="ui inverted header">Services</h4>
+                            <p>
+                                We strive to be less dogshit than 'Pretend You're Xyzzy' (ez lol), and bring you the best experience. for free!
+                            </p>
+                        </div>
+                        <div class="four wide column">
+                            <h4 class="ui inverted header">Who am i?</h4>
+                            <p>The master memer, Fuks!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ui basic modal">
+            <div class="ui icon header">
+                <i class="frown open outline icon"></i> Game in Progress
+                <h6 style="margin: auto;">A game without you is already running. Contant Fuks.</h6>
+                <div style="margin: auto;" v-on:click="close()" class="ui red deny inverted button"> Ok </div>
+            </div>
+        </div>
+    </div>
 </body>
+
 </html>

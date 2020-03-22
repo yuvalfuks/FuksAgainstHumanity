@@ -1,6 +1,26 @@
+#call {
+    background-color: rgb(39, 28, 13);
+    color: white;
+}
+
+#response {}
+
+.notReady {
+    opacity: 0.5;
+}
+
+.scoreboard {
+    margin: 0.3em 0em 0em 0em;
+}
 
 .ui.card.segment {
     min-height: 150px;
+    font-family: Montserrat;
+    font-size: large;
+}
+
+.innerCard {
+    padding: 1em;
 }
 
 div.ui.column.grid {

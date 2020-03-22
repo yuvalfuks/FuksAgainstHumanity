@@ -5,16 +5,25 @@ $().ready(() => {
             message: 'Hello Vue!'
         },
         methods: {
-            submit : async () => {
+            async submit() {
                 const name = $('input').val();
                 let response = await $.post('/login', {
                     nickname : name
                 })
-                window.localStorage.setItem('nickname', name)
-                console.log(window.localStorage.getItem('nickname'))
-                window.location.href += 'game'
-                // tell the user if the nickname is taken
+                if (response == 'bad') {
+                    $('.ui.basic.modal').modal('show')
+                } 
+                else {
+                    window.localStorage.setItem('nickname', name)
+                    console.log(window.localStorage.getItem('nickname'))
+                    window.location.href += 'game'
+                }
             },
+            close() {
+                $('.ui.basic.modal').modal('hide')
+                $('input').val('');
+            }
+
         }
     })
 })

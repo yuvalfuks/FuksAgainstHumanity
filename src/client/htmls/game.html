@@ -1,69 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-	<meta charset="UTF-8">
-	<title>Fuks Against Humanity</title>
-	<link rel="icon" href="https://3d5.buchta.dev/themes/sigsegv2/static/img/favicon.ico?d=e31f8b6d">
+    <meta charset="UTF-8">
+    <title>Fuks Against Humanity</title>
+    <link rel="icon" href="https://3d5.buchta.dev/themes/sigsegv2/static/img/favicon.ico?d=e31f8b6d">
 
-	<script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.4/dist/semantic.min.css">
-	<script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.4/dist/semantic.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.4/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/fomantic-ui@2.8.4/dist/semantic.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet">
 
-	<link rel="stylesheet" href="client/styles/layout.css">
-	<link rel="stylesheet" href="client/styles/game.css">
-	<script src="client/scripts/game.js"></script>
-	
+    <link rel="stylesheet" href="client/styles/layout.css">
+    <link rel="stylesheet" href="client/styles/game.css">
+    <script src="client/scripts/game.js"></script>
+
 </head>
+
 <body class="pushable">
-    <div id = "app" class="pusher">
+    <div id="app" class="pusher">
         <div class="ui inverted vertical masthead center aligned segment">
             <div class="ui large secondary inverted pointing menu">
+                <div class="item" v-for="user in Game.users" style="display: block;">
+                    <div :class="user.ready ? '' : 'notReady'">
+                        <i class="crown icon scoreboard" v-if="Game.users[Game.cardCzar].nickname === user.nickname"></i>
+                        <div class="scoreboard">{{user.nickname}}</div>
+                        <div class="scoreboard">{{user.score}}</div>
+                    </div>
+                </div>
                 <div class="right item">
                     <a class="ui button"> {{ myNickname }}</a>
+                    <a class="ui button" v-on:click="ready()"> {{ myUser.ready ? 'you are ready' : 'ready' }} </a>
                 </div>
             </div>
             <div class="ui nine column grid">
                 <div class="column">
-                    <div class="ui card segment">
-                        <img>
+                    <div id="call" class="ui card segment">
+                        <div class="innerCard" v-if="Game.currentCard">
+                            {{Game.currentCard.text.join("________")}}
+                        </div>
                     </div>
                 </div>
-                <div class="column">
-                    <div class="ui card segment">
-                        <img>
-                    </div>
-                </div>
-                <div class="column">
-                    <div class="ui card segment">
-                        <img>
+                <div class="column" v-for="card in Game.playedCards">
+                    <div id="response" class="ui card segment">
+                        <div class="innerCard" v-if="Game.playedCards.length === Game.users.length - 1">
+                            asdasdasd
+                        </div>
                     </div>
                 </div>
             </div>
             <div class="ui inverted divider"></div>
             <div class="ui nine column grid">
-                <div class="column">
-                    <div class="ui card segment">
-                        <img>
-                    </div>
-                </div>
-                <div class="column">
-                    <div class="ui card segment">
-                        <img>
-                    </div>
-                </div>
-                <div class="column">
-                    <div class="ui card segment">
-                        <img>
+                <div v-for="card in myUser.cards" class="column">
+                    <div id="response" v-bind:class="decideCardAppearance(card)" v-on:click="chooseCard(card)">
+                        <div class="innerCard">
+                            {{card.text[0]}}
+                        </div>
                     </div>
                 </div>
             </div>
-      </div>
+        </div>
     </div>
-    
-    
-    
-    
-    </body>
+
+
+
+
+</body>
 
 </html>
