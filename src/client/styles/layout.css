@@ -1,6 +1,6 @@
 .masthead.segment {
-    min-height: 700px;
-    padding: 1em 0em;
+    min-height: 100vh;
+    padding: 0em;
 }
 
 .masthead .logo.item img {
