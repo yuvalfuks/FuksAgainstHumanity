@@ -4,15 +4,32 @@ $().ready(() => {
         el: '#app',
         data: {
             Game: {},
+            packs: [],
             myUser: {},
-            myNickname: window.localStorage.getItem('nickname')
+            myNickname: window.localStorage.getItem('nickname'),
+            isReady: false,
+            loadingCardPack: false,
+            packToImport: "WZANW" // testing
         },
-        mounted: function() {
+        mounted: async function() {
+            this.refresh();
             setInterval(this.refresh, 200);
+
+            this.packs = await $.getJSON('/api/packs')
+            console.log(this.packs)
+            $('#chosenPacks')
+                .dropdown({
+                    direction: 'downward'
+                });
         },
         methods: {
             isCardCzar(nickname) {
                 return this.Game.users[this.Game.cardCzar].nickname == nickname
+            },
+            isGameLeader(nickname) {
+                if (!this.Game.users)
+                    return false;
+                return this.Game.users[0].nickname == nickname
             },
             async refresh() {
                 console.log('refreshing...')
@@ -22,10 +39,30 @@ $().ready(() => {
                 })
             },
             async ready() {
-                if (this.myUser.ready) {
+                if (this.isReady) {
                     return;
                 }
-                this.myUser.ready = true // prevent races
+                this.isReady = true;
+                if (this.isGameLeader(this.myNickname)) {
+                    const chosenPacks = $('#chosenPacks').dropdown('get value');
+                    if (chosenPacks.length == 0) {
+                        $('#packMenu')
+                            .toast({
+                                position: 'bottom right',
+                                class: 'error',
+                                message: 'You must choose at least one card pack!'
+                            });
+                        this.isReady = false;
+                        return;
+                    }
+
+                    $('#packMenu').hide();
+                    $('#loader').addClass('ui active dimmer');
+                    for (const pack of chosenPacks) {
+                        await $.post(`/api/pack/${pack}`);
+                    }
+                    $('#loader').removeClass('ui active dimmer');
+                }
 
                 let response = await $.post('/api/ready', {
                     nickname: this.myNickname
@@ -66,6 +103,30 @@ $().ready(() => {
                     nickname: play.nickname,
                 });
                 this.refresh()
+            },
+            async addPack() {
+                this.loadingCardPack = true;
+                if (this.packToImport) {
+                    let response = await $.get(`/api/pack/${this.packToImport}`)
+                    if (response == 'ok') {
+                        this.packToImport = '';
+                        this.packs = await $.getJSON('/api/packs')
+                        this.loadingCardPack = false;
+                        console.log('success')
+                        return
+                    }
+                }
+                this.packToImport = '';
+                this.loadingCardPack = false;
+                console.log('fail')
+                $('#packMenu')
+                    .toast({
+                        position: 'bottom right',
+                        class: 'error',
+                        message: 'Failed finding the pack!'
+                    });
+
+                // TODO
             }
         }
     })
