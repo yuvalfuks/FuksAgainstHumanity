@@ -12,15 +12,18 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 /*
 TODO list:
-- calls with 2 responses
-
 - give people time to see who won (a nice animation maybe?)
-
 - GUI design and colors
+- not returning cards - act like a real pack of cards.
+- dont allow the same card twice in someones hand
+
+- actually stash the packs in the db
+- calls with 2 responses
+- declare a winner after 10 rounds
 
 BUGS:
-- sometimes players lose a card
-
+- selctive dropdoen looks weird
+- 
 */
 
 app.get('/', async(req, res) => {
@@ -116,7 +119,7 @@ app.post('/api/winner', async(req, res) => {
         if (user.chosenCard) {
             for (const i in user.cards) {
                 if (user.cards[i].id == user.chosenCard.id) {
-                    user.cards = user.cards.splice(i, 1);
+                    user.cards.splice(i, 1);
                     break;
                 }
             }
@@ -223,6 +226,7 @@ app.listen(80, async() => {
     data = await fsPromises.readFile(__dirname + '/../../db/packs.txt')
     for (pack of data.toString().split('\n')) {
         try {
+            console.log(`importing '${pack}'`)
             await importPack(pack);
         } catch (error) {
             console.log(`error importing '${pack}'`)

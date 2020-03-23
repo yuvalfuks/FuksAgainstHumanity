@@ -15,11 +15,6 @@ $().ready(() => {
         mounted: async function() {
             this.refresh();
             setInterval(this.refresh, 200);
-
-            this.packs = await $.getJSON('/api/packs');
-            $('#chosenPacks').dropdown({
-                direction: 'downward'
-            });
         },
         methods: {
             isCardCzar(nickname) {
@@ -34,6 +29,10 @@ $().ready(() => {
                 this.Game = await $.getJSON('/api/game');
                 this.myUser = this.Game.users.find(user => {
                     return user.nickname == this.myNickname;
+                });
+                this.packs = await $.getJSON('/api/packs');
+                $('#chosenPacks').dropdown({
+                    direction: 'downward'
                 });
             },
             async ready() {
@@ -86,7 +85,6 @@ $().ready(() => {
                     Ready = user.ready;
                 }
                 return Ready ? '' : 'notReady';
-
             },
             async chooseCard(card) {
                 res = await $.post('/api/card', {
@@ -103,34 +101,40 @@ $().ready(() => {
             },
             async addPack() {
                 this.loadingCardPack = true;
-                if (this.packToImport) {
+                if (this.packToImport.replace(/^\s+|\s+$/g, '')) {
                     let response = await $.get(`/api/pack/${this.packToImport}`);
                     if (response == 'ok') {
                         this.packs = await $.getJSON('/api/packs');
-                        $('#packMenu').toast({
+                        $('body').toast({
                             position: 'bottom right',
                             class: 'success',
                             message: `Successfully added pack ${this.packToImport}`
                         });
                         this.packToImport = '';
                     } else if (response == 'dup') {
-                        $('#packMenu').toast({
+                        $('body').toast({
                             position: 'bottom right',
                             class: 'warning',
                             message: 'Pack already exists!'
                         });
 
                     } else if (response == 'bad') {
-                        $('#packMenu').toast({
+                        $('body').toast({
                             position: 'bottom right',
                             class: 'error',
                             message: 'Failed finding the pack!'
                         });
 
                     }
-                    this.packToImport = '';
-                    this.loadingCardPack = false;
+                } else {
+                    $('body').toast({
+                        position: 'bottom right',
+                        class: 'warning',
+                        message: `Cannot import a black pack code`
+                    });
                 }
+                this.packToImport = '';
+                this.loadingCardPack = false;
             }
         }
     })

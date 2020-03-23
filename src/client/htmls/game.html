@@ -57,7 +57,7 @@
                     </select>
                 </div>
             </div>
-            <div v-if="Game.inProgress">
+            <div v-else-if="Game.inProgress">
                 <div class="ui nine column grid">
                     <div class="column">
                         <div id="call" class="ui card segment">

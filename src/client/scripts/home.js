@@ -7,6 +7,14 @@ $().ready(() => {
         methods: {
             async submit() {
                 const name = $('input').val();
+                if (name.replace(/^\s+|\s+$/g, '') == '') {
+                    $('body').toast({
+                        position: 'bottom right',
+                        class: 'warning',
+                        message: `Cannot enter a black nickname`
+                    });
+                    return;
+                }
                 let response = await $.post('/api/login', {
                     nickname: name
                 })
