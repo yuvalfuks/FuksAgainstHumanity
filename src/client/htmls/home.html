@@ -25,12 +25,14 @@
                 <div class="ui text container">
                     <h1 class="ui inverted header">Fuks Against Humanity</h1>
                     <h2>What 'Pretend You're Xyzzy' should have been</h2>
-                    <div>
-                        <div v-on:keyup.enter="submit()" id="nickname" class="ui inverted input focus">
-                            <input type="text" placeholder="nickname">
-                        </div>
-                        <div v-on:click="submit()" id="nickname" class="ui large primary button" data-inverted="" data-tooltip="Under construction!" data-position="bottom center">
-                            Get Started <i class="right arrow icon"></i>
+                    <div style="display: flex; justify-content: center; margin-top: 2em;">
+                        <div style="display: flex;">
+                            <div v-on:keyup.enter="submit()" id="nickname" class="ui inverted input focus">
+                                <input type="text" placeholder="nickname">
+                            </div>
+                            <div v-on:click="submit()" id="nickname" class="ui large primary button" data-inverted="" data-tooltip="Under construction!" data-position="bottom center">
+                                Get Started <i class="right arrow icon"></i>
+                            </div>
                         </div>
                     </div>
 

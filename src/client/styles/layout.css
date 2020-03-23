@@ -67,10 +67,12 @@
 
 #nickname {
     height: 40.9px;
+    margin-right: 0.2em;
 }
 
 #packCode {
     height: 40.9px;
+    margin-right: 0.2em;
 }
 
 .hidden {

@@ -5,6 +5,7 @@ const useragent = require('express-useragent');
 const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
 const fsPromises = require('fs').promises;
+const shuffle = require('shuffle-array')
 
 const app = express();
 app.use('/client', express.static(__dirname + '/../client'));
@@ -13,17 +14,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 /*
 TODO list:
 - give people time to see who won (a nice animation maybe?)
-- GUI design and colors
-- not returning cards - act like a real pack of cards.
-- dont allow the same card twice in someones hand
 
-- actually stash the packs in the db
+
 - calls with 2 responses
 - declare a winner after 10 rounds
 
-BUGS:
-- selctive dropdoen looks weird
-- 
+maybe:
+- actually stash the packs in the db
 */
 
 app.get('/', async(req, res) => {
@@ -59,15 +56,29 @@ app.get('/browser', async(req, res) => {
 const Cards = {
     packs: [],
     calls: [],
-    responses: []
+    currCalls: [],
+    responses: [],
+    currResponses: []
 };
 
 function getCall() {
-    return Cards.calls[Math.floor(Math.random() * Cards.calls.length)]
+    if (Cards.currCalls.length == 0) {
+        Cards.currCalls = Cards.calls.slice();
+        shuffle(Cards.currCalls);
+    }
+    return Cards.currCalls.pop();
 }
 
-function getResponse() {
-    return Cards.responses[Math.floor(Math.random() * Cards.responses.length)]
+function getResponse(user) {
+    if (Cards.currResponses.length == 0) {
+        Cards.currResponses = Cards.responses.slice();
+        shuffle(Cards.currResponses);
+    }
+    const newCard = Cards.currResponses.pop();
+    if (user.cards.find(card => card.id == newCard.id)) {
+        return getResponse(user);
+    }
+    return newCard;
 }
 
 const Game = {
@@ -124,7 +135,7 @@ app.post('/api/winner', async(req, res) => {
                 }
             }
             user.chosenCard = undefined;
-            user.cards.push(getResponse());
+            user.cards.push(getResponse(user));
         }
     }
     Game.playedCards = [];
@@ -143,7 +154,7 @@ app.post('/api/ready', async(req, res) => {
         console.log(Cards);
         for (const u of Game.users) {
             for (let step = 0; step < 7; step++) {
-                u.cards.push(getResponse());
+                u.cards.push(getResponse(u));
             }
         }
     }
@@ -223,7 +234,7 @@ app.get('/admin/remove/:id', async(req, res) => {
 
 app.listen(80, async() => {
     // testing, but maybe do this always with some default pack?
-    data = await fsPromises.readFile(__dirname + '/../../db/packs.txt')
+    const data = await fsPromises.readFile(__dirname + '/../../db/packs.txt')
     const promises = [];
     for (pack of data.toString().split('\n')) {
         promises.push(importPack(pack));

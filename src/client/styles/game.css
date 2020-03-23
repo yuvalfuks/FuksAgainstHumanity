@@ -1,7 +1,3 @@
-#response {
-    font-size: medium;
-}
-
 .notReady {
     opacity: 0.5;
 }
@@ -13,11 +9,14 @@
 .ui.card.segment {
     min-height: 23vh;
     font-family: Montserrat;
-    font-size: large;
+    font-size: small;
 }
 
 .innerCard {
-    padding: 1em;
+    padding-top: 1em;
+    padding-left: 0.3em;
+    padding-right: 0.3em;
+    padding-bottom: 1em;
 }
 
 div.ui.column.grid {

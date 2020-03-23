@@ -42,14 +42,17 @@
                     <h1 class="ui inverted header">You are the game leader. </h1>
                     <h2>Choose which packs you want in the game. Click ready when you are done.</h2>
                     <br>
-                    <div v-on:keyup.enter="addPack()" id="packCode" :class="loadingCardPack? 'ui icon input focus loading' : 'ui icon input focus'">
-                        <input type="text" placeholder="Pack Code" v-model='packToImport'>
-                        <i v-if="loadingCardPack" class="search icon"></i>
+                    <div style="display: flex; justify-content: center;">
+                        <div style="display: flex">
+                            <div v-on:keyup.enter="addPack()" id="packCode" :class="loadingCardPack? 'ui icon input focus loading' : 'ui icon input focus'">
+                                <input type="text" placeholder="Pack Code" v-model='packToImport'>
+                                <i v-if="loadingCardPack" class="search icon"></i>
+                            </div>
+                            <div v-on:click="addPack()" id="nickname" class="ui large primary button" data-inverted="">
+                                Add Pack
+                            </div>
+                        </div>
                     </div>
-                    <div v-on:click="addPack()" id="nickname" class="ui large primary button" data-inverted="">
-                        Add Pack
-                    </div>
-                    <br>
                     <br>
                     <select id="chosenPacks" multiple="" class="ui fluid search dropdown">
                         <option value="">Card Packs</option>
