@@ -1,3 +1,4 @@
+"use strict ";
 $().ready(() => {
 
     var app = new Vue({
@@ -9,34 +10,31 @@ $().ready(() => {
             myNickname: window.localStorage.getItem('nickname'),
             isReady: false,
             loadingCardPack: false,
-            packToImport: "WZANW" // testing
+            packToImport: ""
         },
         mounted: async function() {
             this.refresh();
             setInterval(this.refresh, 200);
 
-            this.packs = await $.getJSON('/api/packs')
-            console.log(this.packs)
-            $('#chosenPacks')
-                .dropdown({
-                    direction: 'downward'
-                });
+            this.packs = await $.getJSON('/api/packs');
+            $('#chosenPacks').dropdown({
+                direction: 'downward'
+            });
         },
         methods: {
             isCardCzar(nickname) {
-                return this.Game.users[this.Game.cardCzar].nickname == nickname
+                return this.Game.users[this.Game.cardCzar].nickname == nickname;
             },
             isGameLeader(nickname) {
                 if (!this.Game.users)
                     return false;
-                return this.Game.users[0].nickname == nickname
+                return this.Game.users[0].nickname == nickname;
             },
             async refresh() {
-                console.log('refreshing...')
-                this.Game = await $.getJSON('/api/game')
+                this.Game = await $.getJSON('/api/game');
                 this.myUser = this.Game.users.find(user => {
-                    return user.nickname == this.myNickname
-                })
+                    return user.nickname == this.myNickname;
+                });
             },
             async ready() {
                 if (this.isReady) {
@@ -46,12 +44,11 @@ $().ready(() => {
                 if (this.isGameLeader(this.myNickname)) {
                     const chosenPacks = $('#chosenPacks').dropdown('get value');
                     if (chosenPacks.length == 0) {
-                        $('#packMenu')
-                            .toast({
-                                position: 'bottom right',
-                                class: 'error',
-                                message: 'You must choose at least one card pack!'
-                            });
+                        $('#packMenu').toast({
+                            position: 'bottom right',
+                            class: 'error',
+                            message: 'You must choose at least one card pack!'
+                        });
                         this.isReady = false;
                         return;
                     }
@@ -64,13 +61,13 @@ $().ready(() => {
                     $('#loader').removeClass('ui active dimmer');
                 }
 
-                let response = await $.post('/api/ready', {
+                await $.post('/api/ready', {
                     nickname: this.myNickname
-                })
+                });
                 this.refresh()
             },
             decideCardAppearance(card) {
-                let base = 'ui button call card segment'
+                let base = 'ui button call card segment';
                 if (this.myUser.chosenCard) {
                     base += ' disabled';
                     if (this.myUser.chosenCard.id == card.id) {
@@ -80,15 +77,15 @@ $().ready(() => {
                 if (this.isCardCzar(this.myNickname)) {
                     base += ' disabled';
                 }
-                return base
+                return base;
             },
             decideUserAppearance(user) {
                 if (this.Game.inProgress) {
-                    Ready = this.isCardCzar(user.nickname) || user.chosenCard
+                    Ready = this.isCardCzar(user.nickname) || user.chosenCard;
                 } else {
-                    Ready = user.ready
+                    Ready = user.ready;
                 }
-                return Ready ? '' : 'notReady'
+                return Ready ? '' : 'notReady';
 
             },
             async chooseCard(card) {
@@ -96,37 +93,44 @@ $().ready(() => {
                     id: card.id,
                     nickname: this.myNickname
                 });
-                this.refresh()
+                this.refresh();
             },
             async chooseWinner(play) {
                 res = await $.post('/api/winner', {
                     nickname: play.nickname,
                 });
-                this.refresh()
+                this.refresh();
             },
             async addPack() {
                 this.loadingCardPack = true;
                 if (this.packToImport) {
-                    let response = await $.get(`/api/pack/${this.packToImport}`)
+                    let response = await $.get(`/api/pack/${this.packToImport}`);
                     if (response == 'ok') {
+                        this.packs = await $.getJSON('/api/packs');
+                        $('#packMenu').toast({
+                            position: 'bottom right',
+                            class: 'success',
+                            message: `Successfully added pack ${this.packToImport}`
+                        });
                         this.packToImport = '';
-                        this.packs = await $.getJSON('/api/packs')
-                        this.loadingCardPack = false;
-                        console.log('success')
-                        return
-                    }
-                }
-                this.packToImport = '';
-                this.loadingCardPack = false;
-                console.log('fail')
-                $('#packMenu')
-                    .toast({
-                        position: 'bottom right',
-                        class: 'error',
-                        message: 'Failed finding the pack!'
-                    });
+                    } else if (response == 'dup') {
+                        $('#packMenu').toast({
+                            position: 'bottom right',
+                            class: 'warning',
+                            message: 'Pack already exists!'
+                        });
 
-                // TODO
+                    } else if (response == 'bad') {
+                        $('#packMenu').toast({
+                            position: 'bottom right',
+                            class: 'error',
+                            message: 'Failed finding the pack!'
+                        });
+
+                    }
+                    this.packToImport = '';
+                    this.loadingCardPack = false;
+                }
             }
         }
     })

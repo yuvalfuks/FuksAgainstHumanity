@@ -4,6 +4,7 @@ const path = require('path');
 const useragent = require('express-useragent');
 const bodyParser = require('body-parser');
 const fetch = require('node-fetch');
+const fsPromises = require('fs').promises;
 
 const app = express();
 app.use('/client', express.static(__dirname + '/../client'));
@@ -11,12 +12,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 /*
 TODO list:
-- duplicate packs????
-- bad input in packs
 - calls with 2 responses
+
 - give people time to see who won (a nice animation maybe?)
 
 - GUI design and colors
+
+BUGS:
+- sometimes players lose a card
 */
 
 app.get('/', async(req, res) => {
@@ -185,9 +188,12 @@ app.post('/api/pack/:id', async(req, res) => {
 app.get('/api/pack/:id', async(req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     try {
+        if (Cards.packs.find(pack => pack.code == req.params.id)) {
+            res.end("dup");
+            return;
+        }
         await importPack(req.params.id);
-        console.log(`success in importing ${req.params.id}`)
-        console.log(Cards)
+        await fsPromises.appendFile(__dirname + '/../../db/packs.txt', '\n' + req.params.id);
         res.end("ok");
     } catch (error) {
         console.log(error);
@@ -208,8 +214,8 @@ app.get('/admin/remove/:id', async(req, res) => {
 
 app.listen(80, async() => {
     // testing, but maybe do this always with some default pack?
-
-    for (pack of['6QP6Y']) {
+    data = await fsPromises.readFile(__dirname + '/../../db/packs.txt')
+    for (pack of data.toString().split('\n')) {
         try {
             await importPack(pack);
         } catch (error) {
