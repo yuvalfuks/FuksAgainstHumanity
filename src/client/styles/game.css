@@ -1,9 +1,6 @@
-#call {
-    background-color: rgb(39, 28, 13);
-    color: white;
+#response {
+    font-size: medium;
 }
-
-#response {}
 
 .notReady {
     opacity: 0.5;
@@ -14,7 +11,7 @@
 }
 
 .ui.card.segment {
-    min-height: 150px;
+    min-height: 23vh;
     font-family: Montserrat;
     font-size: large;
 }
@@ -25,4 +22,25 @@
 
 div.ui.column.grid {
     margin: 1em
+}
+
+#mainContainer {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    bottom: 0;
+    position: absolute;
+    height: calc(100vh - 120px);
+}
+
+.ui.nine.column.grid {
+    justify-content: center;
+}
+
+.ui.secondary.pointing.menu .right.item {
+    align-self: center;
+}
+
+#myCards {
+    bottom: 0;
 }

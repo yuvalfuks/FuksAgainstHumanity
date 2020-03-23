@@ -57,15 +57,11 @@
                     </select>
                 </div>
             </div>
-            <div v-else-if="Game.inProgress">
+            <div id="mainContainer" v-else-if="Game.inProgress">
                 <div class="ui nine column grid">
-                    <div class="column">
-                        <div id="call" class="ui card segment">
-                            <div class="innerCard" v-if="Game.currentCard">
-                                {{Game.currentCard.text.join("________")}}
-                            </div>
-                        </div>
-                    </div>
+                    <h3 v-if="Game.currentCard" class="ui header inverted">{{Game.currentCard.text.join("________")}}</h3>
+                </div>
+                <div class="ui nine column grid">
                     <div class="column" v-for="play in Game.playedCards">
                         <div id="response" v-if="isCardCzar(myNickname) && Game.playedCards.length === Game.users.length - 1" class="ui call card segment button" v-on:click="chooseWinner(play)">
                             <div class="innerCard">
@@ -80,7 +76,7 @@
                     </div>
                 </div>
                 <div class="ui inverted divider"></div>
-                <div class="ui nine column grid">
+                <div id="myCards" class="ui nine column grid">
                     <div v-for="card in myUser.cards" class="column">
                         <div id="response" v-bind:class="decideCardAppearance(card)" v-on:click="chooseCard(card)">
                             <div class="innerCard">
