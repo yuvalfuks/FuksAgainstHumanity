@@ -67,8 +67,8 @@
                         </div>
                     </div>
                     <div class="column" v-for="play in Game.playedCards">
-                        <div id="response" v-if="isCardCzar(myNickname)" class="ui call card segment button" v-on:click="chooseWinner(play)">
-                            <div class="innerCard" v-if="Game.playedCards.length === Game.users.length - 1">
+                        <div id="response" v-if="isCardCzar(myNickname) && Game.playedCards.length === Game.users.length - 1" class="ui call card segment button" v-on:click="chooseWinner(play)">
+                            <div class="innerCard">
                                 {{play.card.text[0]}}
                             </div>
                         </div>

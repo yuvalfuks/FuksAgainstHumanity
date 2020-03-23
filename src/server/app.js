@@ -20,6 +20,7 @@ TODO list:
 
 BUGS:
 - sometimes players lose a card
+
 */
 
 app.get('/', async(req, res) => {
@@ -113,7 +114,12 @@ app.post('/api/winner', async(req, res) => {
     Game.cardCzar = (Game.cardCzar + 1) % Game.users.length;
     for (const user of Game.users) {
         if (user.chosenCard) {
-            user.cards = user.cards.filter(card => card.id != user.chosenCard.id);
+            for (const i in user.cards) {
+                if (user.cards[i].id == user.chosenCard.id) {
+                    user.cards = user.cards.splice(i, 1);
+                    break;
+                }
+            }
             user.chosenCard = undefined;
             user.cards.push(getResponse());
         }
