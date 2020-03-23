@@ -224,13 +224,10 @@ app.get('/admin/remove/:id', async(req, res) => {
 app.listen(80, async() => {
     // testing, but maybe do this always with some default pack?
     data = await fsPromises.readFile(__dirname + '/../../db/packs.txt')
+    const promises = [];
     for (pack of data.toString().split('\n')) {
-        try {
-            console.log(`importing '${pack}'`)
-            await importPack(pack);
-        } catch (error) {
-            console.log(`error importing '${pack}'`)
-        }
+        promises.push(importPack(pack));
     }
+    await Promise.all(promises);
     console.log(`listening on port 80!`);
 })
