@@ -1,3 +1,7 @@
+* {
+    line-height: normal !important;
+}
+
 .masthead.segment {
     min-height: 100vh;
     padding: 0em;

@@ -2,6 +2,10 @@
     opacity: 0.5;
 }
 
+.winner {
+    background-color: #2185d0 !important;
+}
+
 .scoreboard {
     margin: 0.3em 0em 0em 0em;
 }
@@ -9,6 +13,7 @@
 .ui.card.segment {
     min-height: 23vh;
     font-family: Montserrat;
+    font-weight: 700;
     font-size: small;
 }
 
@@ -32,7 +37,7 @@ div.ui.column.grid {
     height: calc(100vh - 120px);
 }
 
-.ui.nine.column.grid {
+.ui.eleven.column.grid {
     justify-content: center;
 }
 

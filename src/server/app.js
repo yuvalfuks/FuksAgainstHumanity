@@ -13,11 +13,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 /*
 TODO list:
-- give people time to see who won (a nice animation maybe?)
+- see the name of the recent winner
+- better colors in game page
+- bigger text in modal
 
+- game leader can end the game
 
 - calls with 2 responses
-- declare a winner after 10 rounds
 
 maybe:
 - actually stash the packs in the db
@@ -32,7 +34,7 @@ app.get('/', async(req, res) => {
         return;
     }
     res.sendFile(path.join(__dirname + '/../client/htmls/home.html'));
-})
+});
 
 app.get('/game', async(req, res) => {
     const source = req.headers['user-agent'];
@@ -43,7 +45,7 @@ app.get('/game', async(req, res) => {
         return;
     }
     res.sendFile(path.join(__dirname + '/../client/htmls/game.html'));
-})
+});
 
 // testing
 app.get('/browser', async(req, res) => {
@@ -51,15 +53,27 @@ app.get('/browser', async(req, res) => {
     const ua = useragent.parse(source);
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end(ua.isChrome ? "browser is supported!" : JSON.stringify(ua));
-})
+});
 
-const Cards = {
-    packs: [],
-    calls: [],
-    currCalls: [],
-    responses: [],
-    currResponses: []
-};
+let Cards;
+
+async function resetCards() {
+    Cards = {
+        packs: [],
+        calls: [],
+        currCalls: [],
+        responses: [],
+        currResponses: []
+    };
+    const data = await fsPromises.readFile(__dirname + '/../../db/packs.txt')
+    const promises = [];
+    for (pack of data.toString().split('\n')) {
+        promises.push(importPack(pack));
+    }
+    await Promise.all(promises);
+}
+
+
 
 function getCall() {
     if (Cards.currCalls.length == 0) {
@@ -81,19 +95,29 @@ function getResponse(user) {
     return newCard;
 }
 
-const Game = {
-    users: [],
-    cardCzar: 0,
-    numReady: 0,
-    playedCards: [],
-    currentCard: undefined,
-    inProgress: false,
-};
+let Game;
+
+function resetGame() {
+    Game = {
+        users: [],
+        cardCzar: 0,
+        numReady: 0,
+        playedCards: [],
+        currentCard: undefined,
+        inProgress: false,
+        recentWinner: '',
+        winner: '',
+    }
+}
+
 
 app.post('/api/login', async(req, res) => {
-    const user = Game.users.find(user => user.nickname === req.body.nickname);
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    if (!user) {
+    const user = Game.users.find(user => user.nickname === req.body.nickname);
+    if (user) {
+        //res.end("dup");
+        res.end("ok");
+    } else {
         if (Game.inProgress) {
             res.end("bad");
             return;
@@ -106,9 +130,9 @@ app.post('/api/login', async(req, res) => {
             cards: []
         }
         Game.users.push(newUser);
+        res.end("ok");
     }
-    res.end("ok");
-})
+});
 
 app.post('/api/card', async(req, res) => {
     const user = Game.users.find(user => user.nickname === req.body.nickname);
@@ -120,29 +144,43 @@ app.post('/api/card', async(req, res) => {
     user.chosenCard = card
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end("ok");
-})
+});
 
 app.post('/api/winner', async(req, res) => {
     const user = Game.users.find(user => user.nickname === req.body.nickname);
     user.score += 1;
-    Game.cardCzar = (Game.cardCzar + 1) % Game.users.length;
-    for (const user of Game.users) {
-        if (user.chosenCard) {
-            for (const i in user.cards) {
-                if (user.cards[i].id == user.chosenCard.id) {
-                    user.cards.splice(i, 1);
-                    break;
-                }
-            }
-            user.chosenCard = undefined;
-            user.cards.push(getResponse(user));
+    Game.recentWinner = user.nickname;
+
+    setTimeout(() => {
+        if (user.score == 3) {
+            Game.winner = user.nickname;
+            setTimeout(() => {
+                resetCards();
+                resetGame();
+            }, 10000)
+            return;
         }
-    }
-    Game.playedCards = [];
-    Game.currentCard = getCall();
+        Game.cardCzar = (Game.cardCzar + 1) % Game.users.length;
+        for (const user of Game.users) {
+            if (user.chosenCard) {
+                for (const i in user.cards) {
+                    if (user.cards[i].id == user.chosenCard.id) {
+                        user.cards.splice(i, 1);
+                        break;
+                    }
+                }
+                user.chosenCard = undefined;
+                user.cards.push(getResponse(user));
+                Game.recentWinner = '';
+            }
+        }
+        Game.playedCards = [];
+        Game.currentCard = getCall();
+    }, 5000);
+
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end("ok");
-})
+});
 
 app.post('/api/ready', async(req, res) => {
     const user = Game.users.find(user => user.nickname === req.body.nickname);
@@ -153,19 +191,27 @@ app.post('/api/ready', async(req, res) => {
         Game.inProgress = true;
         console.log(Cards);
         for (const u of Game.users) {
-            for (let step = 0; step < 7; step++) {
+            for (let step = 0; step < 9; step++) {
                 u.cards.push(getResponse(u));
             }
         }
     }
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end("ok");
-})
+});
 
-app.get('/api/game', async(req, res) => {
+app.get('/api/game/:id', async(req, res) => {
+    const user = Game.users.find(user => user.nickname === req.params.id);
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify(Game));
-})
+    if (user) {
+        res.end(JSON.stringify(Game));
+    } else {
+        res.end(JSON.stringify({
+            users: 'bad'
+        }));
+    }
+
+});
 
 async function importPack(code) {
     let newPack = await fetch(`https://api.cardcastgame.com/v1/decks/${code}`);
@@ -179,7 +225,6 @@ async function importPack(code) {
 async function addPackToGame(code) {
     let newResponses = await fetch(`https://api.cardcastgame.com/v1/decks/${code}/responses`);
     newResponses = await newResponses.json();
-
 
     let newCalls = await fetch(`https://api.cardcastgame.com/v1/decks/${code}/calls`);
     newCalls = await newCalls.json();
@@ -203,7 +248,7 @@ app.post('/api/pack/:id', async(req, res) => {
         console.log(error);
         res.end("bad");
     }
-})
+});
 
 app.get('/api/pack/:id', async(req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
@@ -219,26 +264,36 @@ app.get('/api/pack/:id', async(req, res) => {
         console.log(error);
         res.end("bad");
     }
-})
+});
 
 app.get('/api/packs', async(req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(Cards.packs));
-})
+});
 
 app.get('/admin/remove/:id', async(req, res) => {
     Game.users = Game.users.filter(user => user.nickname !== req.params.id);
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end("ok");
-})
+});
 
+// for memes :3
+app.get('/admin/removePoint/:id', async(req, res) => {
+    const user = Game.users.find(user => user.nickname !== req.params.id);
+    user.score -= 1;
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end("ok");
+});
+
+app.get('/admin/removePoint/:id', async(req, res) => {
+    const user = Game.users.find(user => user.nickname !== req.params.id);
+    user.score += 1;
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end("ok");
+});
+
+resetCards();
+resetGame();
 app.listen(80, async() => {
-    // testing, but maybe do this always with some default pack?
-    const data = await fsPromises.readFile(__dirname + '/../../db/packs.txt')
-    const promises = [];
-    for (pack of data.toString().split('\n')) {
-        promises.push(importPack(pack));
-    }
-    await Promise.all(promises);
     console.log(`listening on port 80!`);
-})
+});

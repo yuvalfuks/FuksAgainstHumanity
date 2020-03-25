@@ -20,6 +20,12 @@ $().ready(() => {
                 })
                 if (response == 'bad') {
                     $('.ui.basic.modal').modal('show')
+                } else if (response == 'dup') {
+                    $('body').toast({
+                        position: 'bottom right',
+                        class: 'error',
+                        message: `That nickname is taken!!!`
+                    });
                 } else {
                     window.localStorage.setItem('nickname', name)
                     console.log(window.localStorage.getItem('nickname'))

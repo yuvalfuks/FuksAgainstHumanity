@@ -1,6 +1,5 @@
 "use strict ";
 $().ready(() => {
-
     var app = new Vue({
         el: '#app',
         data: {
@@ -10,7 +9,8 @@ $().ready(() => {
             myNickname: window.localStorage.getItem('nickname'),
             isReady: false,
             loadingCardPack: false,
-            packToImport: ""
+            packToImport: "",
+            winnerChosen: false
         },
         mounted: async function() {
             this.refresh();
@@ -26,7 +26,22 @@ $().ready(() => {
                 return this.Game.users[0].nickname == nickname;
             },
             async refresh() {
-                this.Game = await $.getJSON('/api/game');
+                const response = await $.getJSON(`/api/game/${this.myNickname}`);
+                if (response.users == 'bad') {
+                    $('#gameOver').modal({
+                        closable: false
+                    }).modal('show');
+                    return;
+                }
+
+                this.Game = response;
+                if (this.Game.winner) {
+                    $('#winner').modal({
+                        closable: false
+                    }).modal('show');
+                    return;
+                }
+
                 this.myUser = this.Game.users.find(user => {
                     return user.nickname == this.myNickname;
                 });
@@ -54,9 +69,11 @@ $().ready(() => {
 
                     $('#packMenu').hide();
                     $('#loader').addClass('ui active dimmer');
+                    const promises = []
                     for (const pack of chosenPacks) {
-                        await $.post(`/api/pack/${pack}`);
+                        promises.push($.post(`/api/pack/${pack}`));
                     }
+                    await Promise.all(promises);
                     $('#loader').removeClass('ui active dimmer');
                 }
 
@@ -78,6 +95,20 @@ $().ready(() => {
                 }
                 return base;
             },
+            decidePlayAppearance(play) {
+                let base = 'ui call card segment';
+                if (this.canCzarChooseWinner() && this.isCardCzar(this.myNickname)) {
+                    base += ' button'
+                }
+                if (this.Game.recentWinner == play.nickname) {
+                    base += ' winner';
+                }
+                console.log(this.Game.recentWinner);
+                return base
+            },
+            canCzarChooseWinner() {
+                return this.isCardCzar(this.myNickname) && this.Game.playedCards.length === this.Game.users.length - 1 && !this.Game.recentWinner;
+            },
             decideUserAppearance(user) {
                 if (this.Game.inProgress) {
                     Ready = this.isCardCzar(user.nickname) || user.chosenCard;
@@ -94,10 +125,17 @@ $().ready(() => {
                 this.refresh();
             },
             async chooseWinner(play) {
-                res = await $.post('/api/winner', {
-                    nickname: play.nickname,
-                });
-                this.refresh();
+                if (this.winnerChosen) return;
+                if (this.Game.recentWinner) return;
+                if (this.isCardCzar(this.myNickname)) {
+                    this.winnerChosen = true;
+                    res = await $.post('/api/winner', {
+                        nickname: play.nickname,
+                    });
+                    this.refresh();
+                    this.winnerChosen = false;
+                }
+
             },
             async addPack() {
                 this.loadingCardPack = true;
@@ -135,6 +173,10 @@ $().ready(() => {
                 }
                 this.packToImport = '';
                 this.loadingCardPack = false;
+            },
+            close(modal) {
+                $(modal).modal('hide')
+                window.location.href = window.location.href.substring(0, window.location.href.length - 5);
             }
         }
     })

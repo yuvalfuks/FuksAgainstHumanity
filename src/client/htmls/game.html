@@ -37,41 +37,36 @@
             <div id='loader'>
                 <div class="ui massive text loader">Loading</div>
             </div>
-            <div id='packMenu' v-if="!Game.inProgress && isGameLeader(myNickname)">
+            <div id='packMenu' v-if="!Game.inProgress && isGameLeader(myNickname) && !myUser.ready">
                 <div class='ui container'>
                     <h1 class="ui inverted header">You are the game leader. </h1>
                     <h2>Choose which packs you want in the game. Click ready when you are done.</h2>
                     <br>
                     <div style="display: flex; justify-content: center;">
                         <div style="display: flex">
-                            <div v-on:keyup.enter="addPack()" id="packCode" :class="loadingCardPack? 'ui icon input focus loading' : 'ui icon input focus'">
+                            <div data-tooltip="This adds packs to the databse. Choose the packs for this game below." data-position="left center" v-on:keyup.enter="addPack()" id="packCode" :class="loadingCardPack? 'ui inverted icon input focus loading' : 'ui inverted icon input focus'">
                                 <input type="text" placeholder="Pack Code" v-model='packToImport'>
                                 <i v-if="loadingCardPack" class="search icon"></i>
                             </div>
-                            <div v-on:click="addPack()" id="nickname" class="ui large primary button" data-inverted="">
+                            <div v-on:click="addPack()" id="nickname" class="ui inverted large primary button" data-inverted="">
                                 Add Pack
                             </div>
                         </div>
                     </div>
                     <br>
-                    <select id="chosenPacks" multiple="" class="ui fluid search dropdown">
+                    <select id="chosenPacks" multiple="" class="ui fluid inverted search dropdown">
                         <option value="">Card Packs</option>
                         <option v-for="pack in packs" :value="pack.code">{{pack.name}}</option>
                     </select>
                 </div>
             </div>
             <div id="mainContainer" v-else-if="Game.inProgress">
-                <div class="ui nine column grid">
+                <div class="ui eleven column grid">
                     <h3 v-if="Game.currentCard" class="ui header inverted">{{Game.currentCard.text.join("________")}}</h3>
                 </div>
-                <div class="ui nine column grid">
-                    <div class="column" v-for="play in Game.playedCards">
-                        <div id="response" v-if="isCardCzar(myNickname) && Game.playedCards.length === Game.users.length - 1" class="ui call card segment button" v-on:click="chooseWinner(play)">
-                            <div class="innerCard">
-                                {{play.card.text[0]}}
-                            </div>
-                        </div>
-                        <div id="response" v-else class="ui call card segment">
+                <div class="ui eleven column grid">
+                    <div v-for="play in Game.playedCards" class="column">
+                        <div :class="decidePlayAppearance(play)" v-on:click="chooseWinner(play)">
                             <div class="innerCard" v-if="Game.playedCards.length === Game.users.length - 1">
                                 {{play.card.text[0]}}
                             </div>
@@ -79,15 +74,32 @@
                     </div>
                 </div>
                 <div class="ui inverted divider"></div>
-                <div id="myCards" class="ui nine column grid">
+                <div id="myCards" class="ui eleven column grid">
                     <div v-for="card in myUser.cards" class="column">
-                        <div id="response" v-bind:class="decideCardAppearance(card)" v-on:click="chooseCard(card)">
+                        <div v-bind:class="decideCardAppearance(card)" v-on:click="chooseCard(card)">
                             <div class="innerCard">
                                 {{card.text[0]}}
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+        <div id='winner' class="ui basic modal">
+            <div class="ui icon header">
+                <i class="trophy icon"></i> {{ Game.winner }} has won he game!!
+                <h6 style="margin: auto;">you will now be directed to the home page where you can start a new game.</h6>
+                <br>
+                <div style="margin: auto;" v-on:click="close('#winner')" class="ui green approve inverted button"> Ok </div>
+            </div>
+        </div>
+
+        <div id='gameOver' class="ui basic modal">
+            <div class="ui icon header">
+                <i class="sync alternate icon"></i> This game is over
+                <h6 style="margin: auto;">you will now be directed to the home page where you can start a new game (in 10 seconds).</h6>
+                <br>
+                <div style="margin: auto;" v-on:click="close('#gameOver')" class="ui green approve inverted button"> Ok </div>
             </div>
         </div>
     </div>
