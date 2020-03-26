@@ -71,6 +71,11 @@
                                 {{play.card.text[0]}}
                             </div>
                         </div>
+                        <div style='display: flex; justify-content: center;' v-show="Game.recentWinner">
+                            <div :style='{display: "flex", visibility: Game.recentWinner? "visible" : "hidden"} '>
+                                {{play.nickname}}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="ui inverted divider"></div>
@@ -85,21 +90,23 @@
                 </div>
             </div>
         </div>
-        <div id='winner' class="ui basic modal">
+        <div id='winner ' class="ui basic modal">
             <div class="ui icon header">
-                <i class="trophy icon"></i> {{ Game.winner }} has won he game!!
-                <h6 style="margin: auto;">you will now be directed to the home page where you can start a new game.</h6>
+                <i class="trophy icon"></i>
+                <h2>{{ Game.winner }} has won he game!!</h2>
+                <h4 style="margin: auto;">you will now be directed to the home page where you can start a new game.</h4>
                 <br>
-                <div style="margin: auto;" v-on:click="close('#winner')" class="ui green approve inverted button"> Ok </div>
+                <div style="margin: auto;" v-on:click="close('#winner ')" class="ui green approve inverted large button"> Ok </div>
             </div>
         </div>
 
-        <div id='gameOver' class="ui basic modal">
+        <div id='gameOver ' class="ui basic modal">
             <div class="ui icon header">
-                <i class="sync alternate icon"></i> This game is over
-                <h6 style="margin: auto;">you will now be directed to the home page where you can start a new game (in 10 seconds).</h6>
+                <i class="sync alternate icon"></i>
+                <h2>This game is over</h2>
+                <h4 style="margin: auto;">you will now be directed to the home page where you can start a new game (in 10 seconds).</h4>
                 <br>
-                <div style="margin: auto;" v-on:click="close('#gameOver')" class="ui green approve inverted button"> Ok </div>
+                <div style="margin: auto;" v-on:click="close('#gameOver ')" class="ui green approve inverted large button"> Ok </div>
             </div>
         </div>
     </div>

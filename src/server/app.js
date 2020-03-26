@@ -15,10 +15,10 @@ app.use(bodyParser.urlencoded({ extended: true }));
 TODO list:
 - see the name of the recent winner
 - better colors in game page
-- bigger text in modal
+
+- remember to uncomment 'res.end("dup");' in /api/login !!!!!!!
 
 - game leader can end the game
-
 - calls with 2 responses
 
 maybe:
