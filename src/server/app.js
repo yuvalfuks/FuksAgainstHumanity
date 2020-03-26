@@ -13,7 +13,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 /*
 TODO list:
-- see the name of the recent winner
 - better colors in game page
 
 - remember to uncomment 'res.end("dup");' in /api/login !!!!!!!
@@ -115,8 +114,9 @@ app.post('/api/login', async(req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     const user = Game.users.find(user => user.nickname === req.body.nickname);
     if (user) {
-        //res.end("dup");
-        res.end("ok");
+        res.end("dup");
+        // for testing, so i can switch between users.
+        //res.end("ok");
     } else {
         if (Game.inProgress) {
             res.end("bad");
