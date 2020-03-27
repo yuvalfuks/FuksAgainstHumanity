@@ -13,12 +13,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 /*
 TODO list:
-- see the name of the recent winner
 - better colors in game page
-- bigger text in modal
+
+- remember to uncomment 'res.end("dup");' in /api/login !!!!!!!
 
 - game leader can end the game
-
 - calls with 2 responses
 
 maybe:
@@ -115,8 +114,9 @@ app.post('/api/login', async(req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     const user = Game.users.find(user => user.nickname === req.body.nickname);
     if (user) {
-        //res.end("dup");
-        res.end("ok");
+        res.end("dup");
+        // for testing, so i can switch between users.
+        //res.end("ok");
     } else {
         if (Game.inProgress) {
             res.end("bad");
@@ -279,7 +279,7 @@ app.get('/admin/remove/:id', async(req, res) => {
 
 // for memes :3
 app.get('/admin/removePoint/:id', async(req, res) => {
-    const user = Game.users.find(user => user.nickname !== req.params.id);
+    const user = Game.users.find(user => user.nickname == req.params.id);
     user.score -= 1;
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end("ok");
