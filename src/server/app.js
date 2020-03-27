@@ -279,7 +279,7 @@ app.get('/admin/remove/:id', async(req, res) => {
 
 // for memes :3
 app.get('/admin/removePoint/:id', async(req, res) => {
-    const user = Game.users.find(user => user.nickname !== req.params.id);
+    const user = Game.users.find(user => user.nickname == req.params.id);
     user.score -= 1;
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end("ok");
