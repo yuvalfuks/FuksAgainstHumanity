@@ -14,7 +14,7 @@ $().ready(() => {
         },
         mounted: async function() {
             this.refresh();
-            setInterval(this.refresh, 200);
+            setInterval(this.refresh, 1000);
         },
         methods: {
             isCardCzar(nickname) {
@@ -80,7 +80,7 @@ $().ready(() => {
                 await $.post('/api/ready', {
                     nickname: this.myNickname
                 });
-                this.refresh()
+                //this.refresh()
             },
             decideCardAppearance(card) {
                 let base = 'ui button call card segment';
@@ -103,7 +103,6 @@ $().ready(() => {
                 if (this.Game.recentWinner == play.nickname) {
                     base += ' winner';
                 }
-                console.log(this.Game.recentWinner);
                 return base
             },
             canCzarChooseWinner() {
@@ -122,7 +121,7 @@ $().ready(() => {
                     id: card.id,
                     nickname: this.myNickname
                 });
-                this.refresh();
+                //this.refresh();
             },
             async chooseWinner(play) {
                 if (this.winnerChosen) return;
@@ -132,7 +131,7 @@ $().ready(() => {
                     res = await $.post('/api/winner', {
                         nickname: play.nickname,
                     });
-                    this.refresh();
+                    //this.refresh();
                     this.winnerChosen = false;
                 }
 

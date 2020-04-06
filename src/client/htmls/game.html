@@ -67,7 +67,7 @@
                 <div class="ui eleven column grid">
                     <div style='position: relative;' v-for="play in Game.playedCards" class="column">
                         <div :class="decidePlayAppearance(play)" v-on:click="chooseWinner(play)">
-                            <div class="innerCard" v-if="Game.playedCards.length === Game.users.length - 1">
+                            <div class="innerCard" v-if="Game.playedCards.length >= Game.users.length - 1">
                                 {{play.card.text[0]}}
                             </div>
                         </div>

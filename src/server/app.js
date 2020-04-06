@@ -12,10 +12,13 @@ app.use('/client', express.static(__dirname + '/../client'));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 /*
+- remember to uncomment 'res.end("dup");' in /api/login !!!!!!!
+
 TODO list:
 - better colors in game page
+- in the menu where you choose packs, the text in the button is not centered
 
-- remember to uncomment 'res.end("dup");' in /api/login !!!!!!!
+- the dot on the cards is on the weong side
 
 - game leader can end the game
 - calls with 2 responses
@@ -111,9 +114,9 @@ app.post('/api/login', async(req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     const user = Game.users.find(user => user.nickname === req.body.nickname);
     if (user) {
-        res.end("dup");
+        // res.end("dup");
         // for testing, so i can switch between users.
-        // res.end("ok");
+        res.end("ok");
     } else {
         if (Game.inProgress) {
             res.end("bad");
@@ -132,48 +135,58 @@ app.post('/api/login', async(req, res) => {
 });
 
 app.post('/api/card', async(req, res) => {
-    const user = Game.users.find(user => user.nickname === req.body.nickname);
-    const card = user.cards.find(card => card.id === req.body.id);
-    Game.playedCards.push({
-        card: card,
-        nickname: req.body.nickname
-    });
-    user.chosenCard = card
+    const AlreadyPlayed = Game.playedCards.find(play => play.nickname === req.body.nickname);
+    if (!AlreadyPlayed) {
+        const user = Game.users.find(user => user.nickname === req.body.nickname);
+        const card = user.cards.find(card => card.id === req.body.id);
+        Game.playedCards.push({
+            card: card,
+            nickname: req.body.nickname
+        });
+
+        if (Game.playedCards.length == Game.users.length - 1) {
+            shuffle(Game.playedCards);
+        }
+
+        user.chosenCard = card
+    }
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end("ok");
 });
 
 app.post('/api/winner', async(req, res) => {
-    const user = Game.users.find(user => user.nickname === req.body.nickname);
-    user.score += 1;
-    Game.recentWinner = user.nickname;
-
-    setTimeout(() => {
-        if (user.score == 10) {
-            Game.winner = user.nickname;
-            setTimeout(() => {
-                resetCards();
-                resetGame();
-            }, 10000)
-            return;
-        }
-        Game.cardCzar = (Game.cardCzar + 1) % Game.users.length;
-        for (const user of Game.users) {
-            if (user.chosenCard) {
-                for (const i in user.cards) {
-                    if (user.cards[i].id == user.chosenCard.id) {
-                        user.cards.splice(i, 1);
-                        break;
-                    }
-                }
-                user.chosenCard = undefined;
-                user.cards.push(getResponse(user));
-                Game.recentWinner = '';
+    if (Game.recentWinner == '' && Game.playedCards.length >= Game.users.length - 1) {
+        const user = Game.users.find(user => user.nickname === req.body.nickname);
+        user.score += 1;
+        Game.recentWinner = user.nickname;
+    
+        setTimeout(() => {
+            if (user.score == 10) {
+                Game.winner = user.nickname;
+                setTimeout(() => {
+                    resetCards();
+                    resetGame();
+                }, 10000)
+                return;
             }
-        }
-        Game.playedCards = [];
-        Game.currentCard = getCall();
-    }, 5000);
+            Game.cardCzar = (Game.cardCzar + 1) % Game.users.length;
+            for (const user of Game.users) {
+                if (user.chosenCard) {
+                    for (const i in user.cards) {
+                        if (user.cards[i].id == user.chosenCard.id) {
+                            user.cards.splice(i, 1);
+                            break;
+                        }
+                    }
+                    user.chosenCard = undefined;
+                    user.cards.push(getResponse(user));
+                }
+            }
+            Game.recentWinner = '';
+            Game.playedCards = [];
+            Game.currentCard = getCall();
+        }, 5000);
+    }
 
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end("ok");
@@ -181,15 +194,16 @@ app.post('/api/winner', async(req, res) => {
 
 app.post('/api/ready', async(req, res) => {
     const user = Game.users.find(user => user.nickname === req.body.nickname);
-    user.ready = true;
-    Game.numReady += 1;
-    if (Game.numReady > 2 && Game.numReady === Game.users.length) {
-        Game.currentCard = getCall();
-        Game.inProgress = true;
-        console.log(Cards);
-        for (const u of Game.users) {
-            for (let step = 0; step < 9; step++) {
-                u.cards.push(getResponse(u));
+    if (user && !user.ready) {
+        user.ready = true;
+        Game.numReady += 1;
+        if (Game.numReady > 2 && Game.numReady === Game.users.length) {
+            Game.currentCard = getCall();
+            Game.inProgress = true;
+            for (const u of Game.users) {
+                for (let step = 0; step < 9; step++) {
+                    u.cards.push(getResponse(u));
+                }
             }
         }
     }
@@ -203,11 +217,8 @@ app.get('/api/game/:id', async(req, res) => {
     if (user) {
         res.end(JSON.stringify(Game));
     } else {
-        res.end(JSON.stringify({
-            users: 'bad'
-        }));
+        res.end(JSON.stringify({users: 'bad'}));
     }
-
 });
 
 async function importPack(code) {
@@ -275,18 +286,30 @@ app.get('/admin/remove/:id', async(req, res) => {
 });
 
 // for memes :3
-app.get('/admin/removePoint/:id', async(req, res) => {
-    const user = Game.users.find(user => user.nickname == req.params.id);
-    user.score -= 1;
+app.get('/admin/removePoint/:id/', async(req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end("ok");
+    const user = Game.users.find(user => user.nickname == req.params.id);
+    if (user) {
+        user.score -= 1;
+        console.log(`A point was removed from ${req.params.id}`)
+        res.end("ok");
+    }
+    else {
+        res.end("no such user");
+    }
 });
 
-app.get('/admin/addPoint/:id', async(req, res) => {
-    const user = Game.users.find(user => user.nickname !== req.params.id);
-    user.score += 1;
+app.get('/admin/addPoint/:id/', async(req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end("ok");
+    const user = Game.users.find(user => user.nickname == req.params.id);
+    if (user) {
+        user.score += 1;
+        console.log(`A point was added to ${req.params.id}`)
+        res.end("ok");
+    }
+    else {
+        res.end("no such user");
+    }
 });
 
 resetCards();
