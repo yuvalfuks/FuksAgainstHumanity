@@ -16,15 +16,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 TODO list:
 - better colors in game page
-- in the menu where you choose packs, the text in the button is not centered
-
-- the dot on the cards is on the weong side
 
 - game leader can end the game
 - calls with 2 responses
-
-maybe:
-- actually stash the packs in the db
 */
 
 app.get('/', async(req, res) => {
@@ -90,6 +84,7 @@ function getResponse(user) {
     }
     const newCard = Cards.currResponses.pop();
     if (user.cards.find(card => card.id == newCard.id)) {
+        // i assume there are actually enough unique cards for a hand.
         return getResponse(user);
     }
     return newCard;
@@ -110,13 +105,13 @@ function resetGame() {
     }
 }
 
-app.post('/api/login', async(req, res) => {
+app.post('/api/login', (req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     const user = Game.users.find(user => user.nickname === req.body.nickname);
     if (user) {
-        // res.end("dup");
+        res.end("dup");
         // for testing, so i can switch between users.
-        res.end("ok");
+        // res.end("ok");
     } else {
         if (Game.inProgress) {
             res.end("bad");
@@ -134,7 +129,7 @@ app.post('/api/login', async(req, res) => {
     }
 });
 
-app.post('/api/card', async(req, res) => {
+app.post('/api/card', (req, res) => {
     const AlreadyPlayed = Game.playedCards.find(play => play.nickname === req.body.nickname);
     if (!AlreadyPlayed) {
         const user = Game.users.find(user => user.nickname === req.body.nickname);
@@ -154,7 +149,7 @@ app.post('/api/card', async(req, res) => {
     res.end("ok");
 });
 
-app.post('/api/winner', async(req, res) => {
+app.post('/api/winner', (req, res) => {
     if (Game.recentWinner == '' && Game.playedCards.length >= Game.users.length - 1) {
         const user = Game.users.find(user => user.nickname === req.body.nickname);
         user.score += 1;
@@ -163,8 +158,8 @@ app.post('/api/winner', async(req, res) => {
         setTimeout(() => {
             if (user.score == 10) {
                 Game.winner = user.nickname;
-                setTimeout(() => {
-                    resetCards();
+                setTimeout(async () => {
+                    await resetCards();
                     resetGame();
                 }, 10000)
                 return;
@@ -192,7 +187,7 @@ app.post('/api/winner', async(req, res) => {
     res.end("ok");
 });
 
-app.post('/api/ready', async(req, res) => {
+app.post('/api/ready', (req, res) => {
     const user = Game.users.find(user => user.nickname === req.body.nickname);
     if (user && !user.ready) {
         user.ready = true;
@@ -211,7 +206,7 @@ app.post('/api/ready', async(req, res) => {
     res.end("ok");
 });
 
-app.get('/api/game/:id', async(req, res) => {
+app.get('/api/game/:id', (req, res) => {
     const user = Game.users.find(user => user.nickname === req.params.id);
     res.writeHead(200, { 'Content-Type': 'application/json' });
     if (user) {
@@ -274,19 +269,19 @@ app.get('/api/pack/:id', async(req, res) => {
     }
 });
 
-app.get('/api/packs', async(req, res) => {
+app.get('/api/packs', (req, res) => {
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify(Cards.packs));
 });
 
-app.get('/admin/remove/:id', async(req, res) => {
+app.get('/admin/remove/:id', (req, res) => {
     Game.users = Game.users.filter(user => user.nickname !== req.params.id);
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end("ok");
 });
 
 // for memes :3
-app.get('/admin/removePoint/:id/', async(req, res) => {
+app.get('/admin/removePoint/:id/', (req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     const user = Game.users.find(user => user.nickname == req.params.id);
     if (user) {
@@ -299,7 +294,7 @@ app.get('/admin/removePoint/:id/', async(req, res) => {
     }
 });
 
-app.get('/admin/addPoint/:id/', async(req, res) => {
+app.get('/admin/addPoint/:id/', (req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     const user = Game.users.find(user => user.nickname == req.params.id);
     if (user) {
@@ -312,8 +307,13 @@ app.get('/admin/addPoint/:id/', async(req, res) => {
     }
 });
 
-resetCards();
-resetGame();
-app.listen(80, () => {
-    console.log(`listening on port 80!`);
-});
+async function run() {
+    await resetCards();
+    resetGame();
+
+    app.listen(80, () => {
+        console.log(`listening on port 80!`);
+    });
+}
+
+run();
