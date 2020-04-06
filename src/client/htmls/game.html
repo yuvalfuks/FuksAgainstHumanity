@@ -48,7 +48,7 @@
                                 <input type="text" placeholder="Pack Code" v-model='packToImport'>
                                 <i v-if="loadingCardPack" class="search icon"></i>
                             </div>
-                            <div v-on:click="addPack()" id="nickname" class="ui inverted large primary button" data-inverted="">
+                            <div style="font-size: 1.05rem;" v-on:click="addPack()" id="nickname" class="ui inverted large primary button" data-inverted="">
                                 Add Pack
                             </div>
                         </div>
@@ -67,7 +67,7 @@
                 <div class="ui eleven column grid">
                     <div style='position: relative;' v-for="play in Game.playedCards" class="column">
                         <div :class="decidePlayAppearance(play)" v-on:click="chooseWinner(play)">
-                            <div class="innerCard" v-if="Game.playedCards.length === Game.users.length - 1">
+                            <div :style="{ direction : decideTextDirection(play.card.text[0]) }" class="innerCard" v-if="Game.playedCards.length >= Game.users.length - 1">
                                 {{play.card.text[0]}}
                             </div>
                         </div>
@@ -82,7 +82,7 @@
                 <div id="myCards" class="ui eleven column grid">
                     <div v-for="card in myUser.cards" class="column">
                         <div v-bind:class="decideCardAppearance(card)" v-on:click="chooseCard(card)">
-                            <div class="innerCard">
+                            <div :style="{ direction : decideTextDirection(card.text[0]) }" class="innerCard">
                                 {{card.text[0]}}
                             </div>
                         </div>

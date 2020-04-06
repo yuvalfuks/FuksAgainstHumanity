@@ -14,7 +14,7 @@ $().ready(() => {
         },
         mounted: async function() {
             this.refresh();
-            setInterval(this.refresh, 200);
+            setInterval(this.refresh, 1000);
         },
         methods: {
             isCardCzar(nickname) {
@@ -103,7 +103,6 @@ $().ready(() => {
                 if (this.Game.recentWinner == play.nickname) {
                     base += ' winner';
                 }
-                console.log(this.Game.recentWinner);
                 return base
             },
             canCzarChooseWinner() {
@@ -177,6 +176,15 @@ $().ready(() => {
             close(modal) {
                 $(modal).modal('hide')
                 window.location.href = window.location.href.substring(0, window.location.href.length - 5);
+            },
+            decideTextDirection(text) {
+                const ENGLISH = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                for (let index = text.length - 1; index >= 0; --index) {
+                    if (ENGLISH.indexOf(text.substring(index, index + 1)) > 0) {
+                        return 'ltr';
+                    }
+                }
+                return 'rtl';
             }
         }
     })

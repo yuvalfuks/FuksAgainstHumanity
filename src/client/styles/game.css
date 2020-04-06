@@ -10,9 +10,66 @@
     margin: 0.3em 0em 0em 0em;
 }
 
+@font-face {
+    font-family: 'ploni';
+    font-weight: 200;
+    font-style: normal;
+    src: url("../fonts/ploni-ultralight-aaa.woff2") format("woff2"), url("../fonts/ploni-ultralight-aaa.woff") format("woff")
+}
+
+@font-face {
+    font-family: 'ploni';
+    font-weight: 300;
+    font-style: normal;
+    src: url("../fonts/ploni-light-aaa.woff2") format("woff2"), url("../fonts/ploni-light-aaa.woff") format("woff")
+}
+
+@font-face {
+    font-family: 'ploni';
+    font-weight: 400;
+    font-style: normal;
+    src: url("../fonts/ploni-regular-aaa.woff2") format("woff2"), url("../fonts/ploni-regular-aaa.woff") format("woff")
+}
+
+@font-face {
+    font-family: 'ploni';
+    font-weight: 500;
+    font-style: normal;
+    src: url("../fonts/ploni-medium-aaa.woff2") format("woff2"), url("../fonts/ploni-medium-aaa.woff") format("woff")
+}
+
+@font-face {
+    font-family: 'ploni';
+    font-weight: 600;
+    font-style: normal;
+    src: url("../fonts/ploni-demibold-aaa.woff2") format("woff2"), url("../fonts/ploni-demibold-aaa.woff") format("woff")
+}
+
+@font-face {
+    font-family: 'ploni';
+    font-weight: 700;
+    font-style: normal;
+    src: url("../fonts/ploni-bold-aaa.woff2") format("woff2"), url("../fonts/ploni-bold-aaa.woff") format("woff")
+}
+
+@font-face {
+    font-family: 'ploni';
+    font-weight: 800;
+    font-style: normal;
+    src: url("../fonts/ploni-ultrabold-aaa.woff2") format("woff2"), url("../fonts/ploni-ultrabold-aaa.woff") format("woff")
+}
+
+@font-face {
+    font-family: 'ploni';
+    font-weight: 900;
+    font-style: normal;
+    src: url("../fonts/ploni-black-aaa.woff2") format("woff2"), url("/wp-content/fonts/ploni/ploni-black-aaa.woff") format("woff")
+}
+
+
 .ui.card.segment {
     min-height: 23vh;
-    font-family: Montserrat;
+    font-family: Montserrat, "ploni";
     font-weight: 700;
     font-size: small;
 }
