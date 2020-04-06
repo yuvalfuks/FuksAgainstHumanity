@@ -80,7 +80,7 @@ $().ready(() => {
                 await $.post('/api/ready', {
                     nickname: this.myNickname
                 });
-                //this.refresh()
+                this.refresh()
             },
             decideCardAppearance(card) {
                 let base = 'ui button call card segment';
@@ -121,7 +121,7 @@ $().ready(() => {
                     id: card.id,
                     nickname: this.myNickname
                 });
-                //this.refresh();
+                this.refresh();
             },
             async chooseWinner(play) {
                 if (this.winnerChosen) return;
@@ -131,7 +131,7 @@ $().ready(() => {
                     res = await $.post('/api/winner', {
                         nickname: play.nickname,
                     });
-                    //this.refresh();
+                    this.refresh();
                     this.winnerChosen = false;
                 }
 
