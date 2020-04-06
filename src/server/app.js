@@ -1,4 +1,4 @@
-"use strict ";
+"use strict";
 const express = require('express');
 const path = require('path');
 const useragent = require('express-useragent');
@@ -66,13 +66,11 @@ async function resetCards() {
     };
     const data = await fsPromises.readFile(__dirname + '/../../db/packs.txt')
     const promises = [];
-    for (pack of data.toString().split('\n')) {
+    for (const pack of data.toString().split('\n')) {
         promises.push(importPack(pack));
     }
     await Promise.all(promises);
 }
-
-
 
 function getCall() {
     if (Cards.currCalls.length == 0) {
@@ -109,14 +107,13 @@ function resetGame() {
     }
 }
 
-
 app.post('/api/login', async(req, res) => {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     const user = Game.users.find(user => user.nickname === req.body.nickname);
     if (user) {
         res.end("dup");
         // for testing, so i can switch between users.
-        //res.end("ok");
+        // res.end("ok");
     } else {
         if (Game.inProgress) {
             res.end("bad");
@@ -152,7 +149,7 @@ app.post('/api/winner', async(req, res) => {
     Game.recentWinner = user.nickname;
 
     setTimeout(() => {
-        if (user.score == 3) {
+        if (user.score == 10) {
             Game.winner = user.nickname;
             setTimeout(() => {
                 resetCards();
@@ -285,7 +282,7 @@ app.get('/admin/removePoint/:id', async(req, res) => {
     res.end("ok");
 });
 
-app.get('/admin/removePoint/:id', async(req, res) => {
+app.get('/admin/addPoint/:id', async(req, res) => {
     const user = Game.users.find(user => user.nickname !== req.params.id);
     user.score += 1;
     res.writeHead(200, { 'Content-Type': 'text/plain' });
@@ -294,6 +291,6 @@ app.get('/admin/removePoint/:id', async(req, res) => {
 
 resetCards();
 resetGame();
-app.listen(80, async() => {
+app.listen(80, () => {
     console.log(`listening on port 80!`);
 });
