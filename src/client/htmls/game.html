@@ -62,13 +62,17 @@
             </div>
             <div id="mainContainer" v-else-if="Game.inProgress">
                 <div class="ui eleven column grid">
-                    <h3 v-if="Game.currentCard" class="ui header inverted">{{Game.currentCard.text.join("________")}}</h3>
+                    <h3 v-if="Game.currentCard" :style="{ direction : decideTextDirection(Game.currentCard.text.join('________')) }" class="ui header inverted">
+                        {{Game.currentCard.text.join("________")}}
+                    </h3>
                 </div>
                 <div class="ui eleven column grid">
-                    <div style='position: relative;' v-for="play in Game.playedCards" class="column">
+                    <div style='position: relative;' v-for="play in Game.plays" class="column">
                         <div :class="decidePlayAppearance(play)" v-on:click="chooseWinner(play)">
-                            <div :style="{ direction : decideTextDirection(play.card.text[0]) }" class="innerCard" v-if="Game.playedCards.length >= Game.users.length - 1">
-                                {{play.card.text[0]}}
+                            <div v-for="card in play.cards">
+                                <div :style="{ direction : decideTextDirection(card.text[0]) }" class="innerCard" v-if="Game.plays.length >= Game.users.length - 1">
+                                    {{card.text[0]}}
+                                </div>
                             </div>
                         </div>
                         <div style='position: absolute; display: flex; width: calc(100% - 2rem);' v-show="Game.recentWinner">

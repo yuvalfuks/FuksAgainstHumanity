@@ -1,4 +1,4 @@
-"use strict ";
+
 $().ready(() => {
     var app = new Vue({
         el: '#app',
@@ -10,7 +10,8 @@ $().ready(() => {
             isReady: false,
             loadingCardPack: false,
             packToImport: "",
-            winnerChosen: false
+            winnerChosen: false,
+            chosenCards: [],
         },
         mounted: async function() {
             this.refresh();
@@ -80,19 +81,32 @@ $().ready(() => {
                 await $.post('/api/ready', {
                     nickname: this.myNickname
                 });
-                this.refresh()
+                await this.refresh()
             },
             decideCardAppearance(card) {
                 let base = 'ui button call card segment';
-                if (this.myUser.chosenCard) {
-                    base += ' disabled';
-                    if (this.myUser.chosenCard.id == card.id) {
-                        base += ' primary';
-                    }
-                }
+                
                 if (this.isCardCzar(this.myNickname)) {
                     base += ' disabled';
                 }
+                else if (this.myUser.chosenCards.length == this.Game.currentCard.text.length - 1) {
+                    base += ' disabled';
+                    for (const chosenCard of this.myUser.chosenCards) {
+                        if (chosenCard.id == card.id) {
+                            base += ' primary';
+                            break;
+                        }
+                    }
+                }
+                else {
+                    for (const id of this.chosenCards) {
+                        if (id == card.id) {
+                            base += ' primary';
+                            break;
+                        }
+                    }
+                }
+                
                 return base;
             },
             decidePlayAppearance(play) {
@@ -106,22 +120,36 @@ $().ready(() => {
                 return base
             },
             canCzarChooseWinner() {
-                return this.isCardCzar(this.myNickname) && this.Game.playedCards.length === this.Game.users.length - 1 && !this.Game.recentWinner;
+                return this.isCardCzar(this.myNickname) && this.Game.plays.length === this.Game.users.length - 1 && !this.Game.recentWinner;
             },
             decideUserAppearance(user) {
                 if (this.Game.inProgress) {
-                    Ready = this.isCardCzar(user.nickname) || user.chosenCard;
+                    Ready = this.isCardCzar(user.nickname) || user.chosenCards.length == this.Game.currentCard.text.length - 1;
                 } else {
                     Ready = user.ready;
                 }
                 return Ready ? '' : 'notReady';
             },
             async chooseCard(card) {
-                res = await $.post('/api/card', {
-                    id: card.id,
-                    nickname: this.myNickname
-                });
-                this.refresh();
+                for (const i in this.chosenCards) {
+                    if (this.chosenCards[i] == card.id) {
+                        console.log(this.chosenCards)
+                        console.log(`splicing ${i}`)
+                        this.chosenCards.splice(i, 1);
+                        return;
+                    }
+                }
+
+                this.chosenCards.push(card.id)
+                if (this.chosenCards.length == this.Game.currentCard.text.length - 1) {
+                    res = await $.post('/api/card', {
+                        ids: this.chosenCards,
+                        nickname: this.myNickname
+                    });
+
+                    await this.refresh();
+                    this.chosenCards = [];
+                }
             },
             async chooseWinner(play) {
                 if (this.winnerChosen) return;
@@ -131,7 +159,7 @@ $().ready(() => {
                     res = await $.post('/api/winner', {
                         nickname: play.nickname,
                     });
-                    this.refresh();
+                    await this.refresh();
                     this.winnerChosen = false;
                 }
 
