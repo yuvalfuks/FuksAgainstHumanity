@@ -19,6 +19,9 @@ TODO list:
 
 - game leader can end the game
 - calls with 2 responses
+    - see the order you clicked?
+    - split into several cards
+- resetCards fetches packs from the website again. there is no need for that i think.
 */
 
 app.get('/', async(req, res) => {
@@ -97,7 +100,7 @@ function resetGame() {
         users: [],
         cardCzar: 0,
         numReady: 0,
-        playedCards: [],
+        plays: [],
         currentCard: undefined,
         inProgress: false,
         recentWinner: '',
@@ -120,7 +123,7 @@ app.post('/api/login', (req, res) => {
         const newUser = {
             nickname: req.body.nickname,
             ready: false,
-            chosenCard: undefined,
+            chosenCards: [],
             score: 0,
             cards: []
         }
@@ -130,27 +133,33 @@ app.post('/api/login', (req, res) => {
 });
 
 app.post('/api/card', (req, res) => {
-    const AlreadyPlayed = Game.playedCards.find(play => play.nickname === req.body.nickname);
+    const AlreadyPlayed = Game.plays.find(play => play.nickname === req.body.nickname);
     if (!AlreadyPlayed) {
         const user = Game.users.find(user => user.nickname === req.body.nickname);
-        const card = user.cards.find(card => card.id === req.body.id);
-        Game.playedCards.push({
-            card: card,
+
+        const cards = []
+        for (let i = 0 ; i < Game.currentCard.text.length - 1; i++) {
+            const card = user.cards.find(card => card.id === req.body.ids[i]);
+            cards.push(card);
+        }
+        
+        Game.plays.push({
+            cards: cards,
             nickname: req.body.nickname
         });
 
-        if (Game.playedCards.length == Game.users.length - 1) {
-            shuffle(Game.playedCards);
+        if (Game.plays.length == Game.users.length - 1) {
+            shuffle(Game.plays);
         }
 
-        user.chosenCard = card
+        user.chosenCards = cards
     }
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end("ok");
 });
 
 app.post('/api/winner', (req, res) => {
-    if (Game.recentWinner == '' && Game.playedCards.length >= Game.users.length - 1) {
+    if (Game.recentWinner == '' && Game.plays.length >= Game.users.length - 1) {
         const user = Game.users.find(user => user.nickname === req.body.nickname);
         user.score += 1;
         Game.recentWinner = user.nickname;
@@ -166,19 +175,23 @@ app.post('/api/winner', (req, res) => {
             }
             Game.cardCzar = (Game.cardCzar + 1) % Game.users.length;
             for (const user of Game.users) {
-                if (user.chosenCard) {
-                    for (const i in user.cards) {
-                        if (user.cards[i].id == user.chosenCard.id) {
-                            user.cards.splice(i, 1);
-                            break;
+                if (user.chosenCards.length > 0) {
+                    for(const chosenCard of user.chosenCards) {
+                        for (const i in user.cards) {
+                            if (chosenCard.id == user.cards[i].id) {
+                                user.cards.splice(i, 1);
+                                break;
+                            }
+
                         }
+                        user.cards.push(getResponse(user));
                     }
-                    user.chosenCard = undefined;
-                    user.cards.push(getResponse(user));
+                    
+                    user.chosenCards = [];
                 }
             }
             Game.recentWinner = '';
-            Game.playedCards = [];
+            Game.plays = [];
             Game.currentCard = getCall();
         }, 5000);
     }
@@ -231,7 +244,7 @@ async function addPackToGame(code) {
 
     let newCalls = await fetch(`https://api.cardcastgame.com/v1/decks/${code}/calls`);
     newCalls = await newCalls.json();
-    newCalls = newCalls.filter(call => call.text.length < 3);
+    // newCalls = newCalls.filter(call => call.text.length <= 3);
 
     if ((newResponses.length == 1 && newResponses[0].id == "not_found") ||
         (newCalls.length == 1 && newCalls[0].id == "not_found")) {
