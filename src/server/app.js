@@ -22,6 +22,7 @@ TODO list:
     - see the order you clicked?
     - split into several cards
 - resetCards fetches packs from the website again. there is no need for that i think.
+- indicate whenever we are done with a deck
 */
 
 app.get('/', async(req, res) => {
@@ -67,7 +68,9 @@ async function resetCards() {
     const data = await fsPromises.readFile(__dirname + '/../../db/packs.txt')
     const promises = [];
     for (const pack of data.toString().split('\n')) {
-        promises.push(importPack(pack));
+        if (pack.length > 0) {
+            promises.push(importPack(pack));
+        }
     }
     await Promise.all(promises);
 }
@@ -287,7 +290,7 @@ app.get('/api/packs', (req, res) => {
     res.end(JSON.stringify(Cards.packs));
 });
 
-app.get('/admin/remove/:id', (req, res) => {
+app.get('/admin/removeUser/:id', (req, res) => {
     Game.users = Game.users.filter(user => user.nickname !== req.params.id);
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end("ok");
@@ -321,6 +324,19 @@ app.get('/admin/addPoint/:id/', (req, res) => {
 });
 
 async function run() {
+    try {
+        await fsPromises.access("../../db");
+    } catch (error) {
+        await fsPromises.mkdir("../../db");
+    }
+
+    try {
+        await fsPromises.access("../../db/packs.txt");
+    } catch (error) {
+        await fsPromises.writeFile("../../db/packs.txt");
+    }
+    
+
     await resetCards();
     resetGame();
 
